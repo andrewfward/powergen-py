@@ -1,3 +1,6 @@
 # ignore excel files
 *.xlsx
 *.xls
+
+# ignore python cache
+__pycache__

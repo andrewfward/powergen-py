@@ -396,8 +396,8 @@ class genSizer():
 
 #-----LOGIC------------------------------------------------------------------------------#
 
-t1 = time.time()
-g = genSizer(50)
-g.mainLoop(69, animate=False, plot=True)
-t2 = time.time()
-print("\nelapsed time: ",t2-t1)
+# t1 = time.time()
+# g = genSizer(50)
+# g.mainLoop(69, animate=False, plot=True)
+# t2 = time.time()
+# print("\nelapsed time: ",t2-t1)
