@@ -119,7 +119,7 @@ class genSizer():
         # naughty list
         self.invalid_particles = []
         
-    def testConstraints(self):
+    def test_constraints(self):
         
         self.invalid_particles.clear()
         
@@ -210,22 +210,22 @@ class genSizer():
                             p.Edump += (p.Ebatt[t+1] - EbattMax)
                             p.Ebatt[t+1] = EbattMax
 
-    def deleteInvalid(self):
+    def delete_invalid(self):
         for p in self.invalid_particles:
             self.swarm.remove(p)
     
-    def updatePositionAll(self):
+    def update_pos_all(self):
         for p in self.swarm:
             p.updatePosition()
     
-    def resetInvalid(self):
+    def reset_invalid(self):
         for p in self.swarm:
             if p in self.invalid_particles:
                 p.pos = p.prev_pos
                 p.vel = [0, 0, 0]
                 p.fuel_used = p.prev_fuel
     
-    def fitnessAll(self):
+    def fitness_all(self):
         # evaluate cost (obj function)
         for p in self.swarm:
             Ns = p.pos[0]
@@ -252,7 +252,7 @@ class genSizer():
             p.gbest_pos = gbest_pos
             p.gbest_value = gbest
         
-    def updateVelocityAll(self, current_iter):
+    def update_vel_all(self, current_iter):
         
         for p in self.swarm:
             
@@ -274,6 +274,20 @@ class genSizer():
             p.vel[1] = round(w*p.vel[1] + c1*r1*(pbest[1]-p.pos[1]) + c2*r2*(gbest[1]-p.pos[1]))
             p.vel[2] = round(w*p.vel[2] + c1*r1*(pbest[2]-p.pos[2]) + c2*r2*(gbest[2]-p.pos[2]))
     
+    def check_converge(self):
+        # check if first 3 particles have the same position for 2 subsequent generations
+        # if so, the swarm has converged and we can exit the loop (quicker processing)
+        # if not, carry on (until max iterations is met)
+        
+        # retrieve current and past pos for first 3 particles (or all if less than 3 particles)
+        positions = []
+        for i in range(min(3,len(self.swarm))):
+            positions.append(self.swarm[i].pos)
+            positions.append(self.swarm[i].prev_pos)
+        
+            # if all current and past positions match, returns True. False otherwise
+            self.converged = (positions.count(positions[0]) == len(positions))
+        
     def animate(self,iteration_number):
         self.fig = plt.figure()
         ax = self.fig.add_subplot(projection = "3d")
@@ -295,17 +309,19 @@ class genSizer():
         
         plt.show()
     
-    def mainLoop(self, max_iter, plot=False, animate=False):
+    def optimise(self, max_iter, plot=False, animate=False):
         
         # used for inertia correction (w) in velocity update
         self.max_iter = max_iter
         
         # remove particles outside feasible region
-        self.testConstraints()
-        self.deleteInvalid()
+        self.test_constraints()
+        self.delete_invalid()
         
         # proper loop
-        for i in range(max_iter):
+        self.converged = False
+        i = 0
+        while (i < max_iter) and (self.converged == False):
             
             if i % 1 == 0:
                 print("\n\niteration:",i+1)
@@ -320,13 +336,16 @@ class genSizer():
                 print("\nGbest:",self.swarm[0].gbest_pos)
                 print("Gb cost:",self.swarm[0].gbest_value)
             
-            self.updatePositionAll()
-            self.testConstraints()
-            self.resetInvalid()
-            self.fitnessAll()
-            self.updateVelocityAll(i)
+            self.update_pos_all()
+            self.test_constraints()
+            self.reset_invalid()
+            self.fitness_all()
+            self.update_vel_all(i)   # current iter number passed for inertia adjustment
             if animate == True: 
                 self.animate(i)
+            self.check_converge()
+            
+            i += 1
             
         # displaying results in console
         print("\nSolar Panels:\t", self.swarm[0].pos[0])
