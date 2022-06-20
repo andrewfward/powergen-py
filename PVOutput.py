@@ -42,7 +42,7 @@ def automatic_tilt(lati):
     else:
         return 40
 
-def pv_power_output(lati, long, year, capacity, dataset="merra2", system_loss=0, auto_tilt=True, tilt=0, azim=180):
+def pv_output(lati, long, year, capacity, dataset="merra2", system_loss=0, auto_tilt=True, tilt=0, azim=180):
 
     if auto_tilt == True:
         azim = 180
@@ -52,18 +52,12 @@ def pv_power_output(lati, long, year, capacity, dataset="merra2", system_loss=0,
     end_date = str(year) + "-12-31"    
 
     token = ' fc5b9e4dc8ef24a5923256436575c37dc8ce9195'
-    api_base = 'https://www.renewables.ninja/api/'
+    # url for PV data
+    url = 'https://www.renewables.ninja/api/data/pv'
     
     s = requests.session()
     # Send token header with each request
     s.headers = {'Authorization': 'Token ' + token}
-    
-    
-    ##
-    # PV example
-    ##
-    
-    url = api_base + 'data/pv'
     
     args = {
         'lat': lati,
@@ -73,7 +67,7 @@ def pv_power_output(lati, long, year, capacity, dataset="merra2", system_loss=0,
         'dataset': dataset,
         'capacity': capacity,
         'system_loss': system_loss,
-        'tracking': 0,                  # assuming fixed, tracking panels is more expensive and harder to maintain.
+        'tracking': 0,      # assuming fixed, tracking panels are more expensive and harder to maintain.
         'tilt': tilt,
         'azim': azim,
         'header': False,
@@ -88,4 +82,5 @@ def pv_power_output(lati, long, year, capacity, dataset="merra2", system_loss=0,
     
     data = pd.read_json(json.dumps(parsed_response), orient='index')
     
-    return data
+    return data["electricity"].values.tolist()
+    # return data

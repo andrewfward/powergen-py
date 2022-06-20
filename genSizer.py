@@ -95,7 +95,7 @@ class genSizer():
     timebreakerMax = 0
     autonomDaysMin = 2
     
-    def __init__(self,swarm_size):
+    def __init__(self, swarm_size, psol_unit):      # psol_unit is list
         self.swarm_size = swarm_size
         
         # generate swarm
@@ -110,8 +110,9 @@ class genSizer():
         self.Pdem = self.Pdem[0:8760]
         
         # retrieve single solar panel output power as list
-        self.Psol_unit = df["Psol"].values.tolist()
-        self.Psol_unit = self.Psol_unit[0:8760]
+        # self.Psol_unit = df["Psol"].values.tolist()
+        # self.Psol_unit = self.Psol_unit[0:8760]
+        self.Psol_unit = psol_unit
         
         # naughty list
         self.invalid_particles = []
@@ -398,6 +399,6 @@ class genSizer():
 
 # t1 = time.time()
 # g = genSizer(50)
-# g.mainLoop(69, animate=False, plot=True)
+# g.mainLoop(69, animate=False, plot=False)
 # t2 = time.time()
 # print("\nelapsed time: ",t2-t1)
