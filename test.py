@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from PVOutput import pv_power_output
+from PVOutput import *
 from genSizer import *
 
-pv_unit = pv_output(34.125, 39.814, 2015, 1.0, system_loss=0.1)
+pv_unit = pv_output(25, 7, 2013, 0.2, auto_dataset=True, auto_tilt=True)
 
 g = genSizer(50, pv_unit)
-g.mainLoop(69, animate=False, plot=False)
+g.mainLoop(200, animate=False, plot=False)
+
+# dataset = automatic_dataset(24, -11, 2000)
+# print(dataset)

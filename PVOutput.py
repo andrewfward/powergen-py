@@ -32,16 +32,19 @@ def automatic_tilt(lati):
     
     Returns
     -------
-    angle : float
+    float
         Optimal tilt angle for equator facing panel in degrees.
 
     """
     lati = abs(lati)
+    
     if lati <= 25:
         return lati * 0.87
+    
     elif lati <= 50:
         return lati * 0.76 + 3.1
-    else:
+    
+    else:   # latitude > 50 deg.
         return 40
 
 def automatic_dataset(lati, long, year):
@@ -71,13 +74,15 @@ def automatic_dataset(lati, long, year):
         Optimal dataset for given location and year.
 
     """
-    if (lati < 65 and lati > 24) and (long < 44 and long > -11) and (year <= 2015 and year >= 2000):
+    if (lati <= 65 and lati >= 24) and (long <= 44 and long >= -11) and (year <= 2015 and year >= 2000):
         return "sarah"
     
     else:
         return "merra2"
 
-def pv_output(lati, long, year, capacity, dataset="merra2", system_loss=0, auto_tilt=True, tilt=0, azim=180):
+def pv_output(lati, long, year, capacity, 
+              auto_dataset=True, dataset="merra2", system_loss=0, 
+              auto_tilt=True, tilt=0, azim=180):
     """
     Parameters
     ----------
@@ -106,13 +111,18 @@ def pv_output(lati, long, year, capacity, dataset="merra2", system_loss=0, auto_
 
     Returns
     -------
-    Pout : list
-        Hourly power output for single PV panel in selected year.
+    list
+        Hourly power output for single PV panel with given capacity in selected year.
 
     """
+    if auto_dataset == True:
+        dataset = automatic_dataset(lati, long, year)
+        print("dataset: " + dataset)
+    
     if auto_tilt == True:
         azim = 180
         tilt = automatic_tilt(lati)
+        print("tilt: " + str(tilt))
         
     start_date = str(year) + "-01-01"
     end_date = str(year) + "-12-31"    

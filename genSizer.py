@@ -2,7 +2,9 @@
 """
 
     Generation Sizer for "Energy 4 Development" VIP
+    
     Code by Alfredo Scalera (alfredo.scalera.2019@uni.strath.ac.uk)
+    
     Based on MATLAB code by Steven Nolan ( )
 
 """
@@ -16,7 +18,7 @@ random.seed(19)      # rng
 
 #-----FUNCTIONS--------------------------------------------------------------------------#
 
-# MIGHT NEED TO CHANGE
+# !!! MIGHT NEED TO CHANGE
 # gets the data excel file name (assuming one excel file in folder)
 def excelFileName():
     for folder, sub_folder, files in os.walk(os.getcwd()):
@@ -76,7 +78,7 @@ class Particle():
         
         self.pos[0] = self.pos[0] + self.vel[0]     # x
         self.pos[1] = self.pos[1] + self.vel[1]     # y
-        self.pos[2] = self.pos[2] + self.vel[2]    # z
+        self.pos[2] = self.pos[2] + self.vel[2]     # z
         
     
 class genSizer():
@@ -90,7 +92,7 @@ class genSizer():
     # technical parameters  --> IDEALLY FROM EXTERNAL INPUT (user config)
     EbattMax_unit = 2040
     EbattMin_unit = 408
-    Pgen_unit = 750
+    Pgen_unit = 50
     fuelReq = 1
     timebreakerMax = 0
     autonomDaysMin = 2
@@ -250,14 +252,16 @@ class genSizer():
             p.gbest_pos = gbest_pos
             p.gbest_value = gbest
         
-    def updateVelocityAll(self):
+    def updateVelocityAll(self, current_iter):
+        
         for p in self.swarm:
+            
             # PSO parameters
                 # w inertia
                 # c1 self confidence, c2 social conformity
                 # r1, r2 random factors
 
-            w = 0.5*(self.max_iter - self.i)/(self.max_iter) + 0.4        
+            w = 0.5*(self.max_iter - current_iter)/(self.max_iter) + 0.4        
             c1 = 2.03
             c2 = 2.03
             r1 = random.random()
@@ -303,8 +307,6 @@ class genSizer():
         # proper loop
         for i in range(max_iter):
             
-            self.i = i
-            
             if i % 1 == 0:
                 print("\n\niteration:",i+1)
                 
@@ -322,18 +324,19 @@ class genSizer():
             self.testConstraints()
             self.resetInvalid()
             self.fitnessAll()
-            self.updateVelocityAll()
+            self.updateVelocityAll(i)
             if animate == True: 
                 self.animate(i)
             
-        # displaying results in consol
+        # displaying results in console
         print("\nSolar Panels:\t", self.swarm[0].pos[0])
         print("Batteries:\t\t", self.swarm[0].pos[1])
         print("Generators:\t\t", self.swarm[0].pos[2])
         print("Fuel used:\t\t", self.swarm[0].fuel_used)
         print("Cost:\t\t\t",self.swarm[0].cost)
-        print("Days of Autonomy",self.swarm[0].autonomDays)
+        print("Days of Autonomy:",self.swarm[0].autonomDays)
         
+        # !!! final plotting -- turn into proper method for final version
         if plot == True:
             
             t = [x for x in range(8760)]
