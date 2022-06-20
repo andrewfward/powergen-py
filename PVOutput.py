@@ -20,18 +20,19 @@ def automatic_tilt(lati):
     As found at: https://github.com/renewables-ninja/gsee/blob/master/gsee/pv.py
     
     Return optimal tilt angle for given latitude.
-    Works for latitudes between 0 and 50 deg.
+    Works for latitudes between 0 and 50 deg, above 50 deg, tilt is set to 40 deg.
     Assumes panel is facing equator (azim = 180 deg)
 
     Parameters
     ----------
     lati : flaot
         Latitude in degrees.
+    
 
     Returns
     -------
-    angle : fkiat
-        Optimal tilt angle in degrees.
+    angle : float
+        Optimal tilt angle for equator facing panel in degrees.
 
     """
     lati = abs(lati)
@@ -43,7 +44,38 @@ def automatic_tilt(lati):
         return 40
 
 def pv_output(lati, long, year, capacity, dataset="merra2", system_loss=0, auto_tilt=True, tilt=0, azim=180):
+    """
+    Parameters
+    ----------
+    lati : flaot
+        Location latitude (deg).
+    long : float
+        Location longitude (deg).
+    year : int
+        Data year.
+    capacity : flaot
+        Capacity of PV panel (kW).
+    dataset : string, optional
+        Solar resources dataset.
+        Options:    NASA MERRA-2 ("merra2"): global coverage, 1980 - ongoing.
+                    CM-SAF SARAH ("sarah"): covers Europe, higher accuracy, 2000 - 2015. 
+        The default is "merra2".
+    system_loss : float, optional
+        System's internal losses. Value between 0 and 1. The default is 0.
+        (future work will account for this)
+    auto_tilt : Boolean, optional
+        If set to True, the tilt is automatically calculated based on latitude. The default is True.
+    tilt : flaot, optional
+        PV panel tilt angle (deg). The default is 0.
+    azim : float, optional
+        PV panel azim angle (deg). The default is 180 (facing equator).
 
+    Returns
+    -------
+    Pout : list
+        Hourly power output for single PV panel in selected year.
+
+    """
     if auto_tilt == True:
         azim = 180
         tilt = automatic_tilt(lati)
