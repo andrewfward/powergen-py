@@ -19,7 +19,9 @@ def automatic_tilt(lati):
     Original author: Stefan Pfenninger
     As found at: https://github.com/renewables-ninja/gsee/blob/master/gsee/pv.py
     
-    Return optimal tilt angle for given latitude.
+    Stefan Pfenninger and Iain Staffell (2016). Long-term patterns of European PV output using 30 years of validated hourly reanalysis and satellite data. Energy 114, pp. 1251-1265. doi: 10.1016/j.energy.2016.08.060
+    
+    Returns optimal tilt angle for given latitude.
     Works for latitudes between 0 and 50 deg, above 50 deg, tilt is set to 40 deg.
     Assumes panel is facing equator (azim = 180 deg)
 
@@ -28,7 +30,6 @@ def automatic_tilt(lati):
     lati : flaot
         Latitude in degrees.
     
-
     Returns
     -------
     angle : float
@@ -42,6 +43,39 @@ def automatic_tilt(lati):
         return lati * 0.76 + 3.1
     else:
         return 40
+
+def automatic_dataset(lati, long, year):
+    """
+    Returns the optimal dataset based on location and year.
+    CM-SAF SARAH returned if location within "Europe square" and year between 2000-2015.
+    
+    "Europe square" (lat,lon):
+        
+        (65,-11)        (65,44)
+        
+        
+        (24,-11)        (24,44)
+
+    Parameters
+    ----------
+    lati : flaot
+        Location latitude.
+    long : flaot
+        Location longitude.
+    year : int
+        Data year.
+
+    Returns
+    -------
+    str
+        Optimal dataset for given location and year.
+
+    """
+    if (lati < 65 and lati > 24) and (long < 44 and long > -11) and (year <= 2015 and year >= 2000):
+        return "sarah"
+    
+    else:
+        return "merra2"
 
 def pv_output(lati, long, year, capacity, dataset="merra2", system_loss=0, auto_tilt=True, tilt=0, azim=180):
     """
@@ -83,7 +117,7 @@ def pv_output(lati, long, year, capacity, dataset="merra2", system_loss=0, auto_
     start_date = str(year) + "-01-01"
     end_date = str(year) + "-12-31"    
 
-    token = ' fc5b9e4dc8ef24a5923256436575c37dc8ce9195'
+    token = ' fc5b9e4dc8ef24a5923256436575c37dc8ce9195'     # Alfredo's account token.
     # url for PV data
     url = 'https://www.renewables.ninja/api/data/pv'
     
@@ -114,5 +148,5 @@ def pv_output(lati, long, year, capacity, dataset="merra2", system_loss=0, auto_
     
     data = pd.read_json(json.dumps(parsed_response), orient='index')
     
-    return data["electricity"].values.tolist()
     # return data
+    return data["electricity"].values.tolist()
