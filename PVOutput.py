@@ -5,7 +5,7 @@
     
     Code by Alfredo Scalera (alfredo.scalera.2019@uni.strath.ac.uk)
     
-    Based on Python example in renewables.ninja API documentation
+    Based on Python example in renewables.ninja API documentation:
     https://www.renewables.ninja/documentation/api/python-example
 
 """
@@ -127,7 +127,7 @@ def pv_output(lati, long, year, capacity,
     start_date = str(year) + "-01-01"
     end_date = str(year) + "-12-31"    
 
-    token = ' fc5b9e4dc8ef24a5923256436575c37dc8ce9195'     # Alfredo's account token.
+    token = 'fc5b9e4dc8ef24a5923256436575c37dc8ce9195'     # Alfredo's account token.
     # url for PV data
     url = 'https://www.renewables.ninja/api/data/pv'
     

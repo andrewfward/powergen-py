@@ -5,7 +5,7 @@
     
     Code by Alfredo Scalera (alfredo.scalera.2019@uni.strath.ac.uk)
     
-    Based on MATLAB code by Steven Nolan ( )
+    Based on MATLAB code by Steven Nolan.
 
 """
 
@@ -32,7 +32,7 @@ def excelFileName():
 
 #-----CLASSES----------------------------------------------------------------------------#
 
-class Particle():
+class Particle:
     
     # technical trackers
     Psol = [0]*8760
@@ -81,7 +81,7 @@ class Particle():
         self.pos[2] = self.pos[2] + self.vel[2]     # z
         
     
-class genSizer():
+class GenSizer:
 
     # cost of components    --> IDEALLY FROM EXTERNAL INPUT (user config)
     solCost = 150.98
@@ -343,7 +343,7 @@ class genSizer():
             self.update_vel_all(i)   # current iter number passed for inertia adjustment
             if animate == True: 
                 self.animate(i)
-            # self.check_converge()
+            self.check_converge()
             
             i += 1
             
