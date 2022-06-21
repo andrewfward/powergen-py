@@ -9,7 +9,7 @@
 
 """
 
-import random, os, time
+import random, os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -415,12 +415,3 @@ class genSizer():
         # update pbest
         # update gbest
         # update velocity
-        
-
-#-----LOGIC------------------------------------------------------------------------------#
-
-# t1 = time.time()
-# g = genSizer(50)
-# g.mainLoop(69, animate=False, plot=False)
-# t2 = time.time()
-# print("\nelapsed time: ",t2-t1)
