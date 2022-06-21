@@ -26,10 +26,9 @@ class Node:
         
         # status indicators for constraints check
         self.current_calculated = False
-        self.voltage_calculated = True
+        self.voltage_calculated = False
         
-        if self.customer_id.lower() in ["src","source"]:
-            self.source = True
+        self.source = False
 
 class NetworkDesigner:
     
@@ -58,9 +57,19 @@ class NetworkDesigner:
             self.nodes.append(Node(loc,power_demand,customer_id))
     
     def check_source(self):
+        """
+        Checks if a source is present
+        """
+        found = False
         for n in self.nodes:
-            
-    
+            if n.customer_id.lower() in ["source","src","generation point"]:
+                n.source = True
+                found = True
+        
+        if found == False:
+            self.nodes[0].customer_id = "SOURCE"
+            self.nodes[0].source = True
+
     def cable_specs(self, resistance_unit_length, current_rating, cost_unit_length):
         # !!! future: add similar import to customers for cables
         
@@ -75,3 +84,4 @@ TESTING AREA
 
 n = NetworkDesigner(240)
 n.import_customers()
+n.check_source()
