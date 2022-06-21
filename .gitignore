@@ -2,5 +2,8 @@
 *.xlsx
 *.xls
 
+# ignore csv files
+*.csv
+
 # ignore python cache
 __pycache__
