@@ -2,37 +2,38 @@
 """
 
     Network Designer for "Energy 4 Development" VIP
+    
     Code by Alfredo Scalera (alfredo.scalera.2019@uni.strath.ac.uk)
+    
     Based on MATLAB code by Steven Nolan ( )
 
 """
 
 class networkDesigner:
-    """
     
-    Main class that houses algorithm.
-    
-    Manages inter-node methods.
-    
-    Parameters
-    ----------
-    num_nodes : int
-        Number of nodes present in network.
-    positions : list-like object
-        X & Y coordinate pairs for position of each node.
-    
-    """
-    
-    def __init__(self, num_nodes, positions, scale):
+    def __init__(self, num_nodes, positions, scale, Vnom, Imax, resistance, cost):
         
         # number of nodes in network
         # includes source node (node 0 aka "SRC")
         self.num_nodes = num_nodes
         
+        # position of nodes in x-y plane (list-type)
+        self.positions = positions
+        
         # base length for distances
         self.scale = scale
         
+        # mini-grid nominal voltage
+        self.nom_volt = Vnom
         
+        # cable current rating
+        self.current_rating = Imax
+        
+        # cable resistance per unit length (ohm/km)
+        self.res = resistance
+        
+        # cost per unit length (£/km)
+        self.cost = cost
         
         pass 
         

@@ -92,7 +92,7 @@ class genSizer():
     # technical parameters  --> IDEALLY FROM EXTERNAL INPUT (user config)
     EbattMax_unit = 2040
     EbattMin_unit = 408
-    Pgen_unit = 50
+    Pgen_unit = 300
     fuelReq = 1
     timebreakerMax = 0
     autonomDaysMin = 2
@@ -343,7 +343,7 @@ class genSizer():
             self.update_vel_all(i)   # current iter number passed for inertia adjustment
             if animate == True: 
                 self.animate(i)
-            self.check_converge()
+            # self.check_converge()
             
             i += 1
             

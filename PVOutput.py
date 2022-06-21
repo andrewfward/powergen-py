@@ -158,5 +158,5 @@ def pv_output(lati, long, year, capacity,
     
     data = pd.read_json(json.dumps(parsed_response), orient='index')
     
-    # return data
-    return data["electricity"].values.tolist()
+    # return data in Watts
+    return [p_out * 1000 for p_out in data["electricity"].values.tolist()]
