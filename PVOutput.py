@@ -103,7 +103,7 @@ def pv_output(lati, long, year, capacity,
         System's internal losses. Value between 0 and 1. The default is 0.
         (future work will account for this)
     auto_tilt : Boolean, optional
-        If set to True, the tilt is automatically calculated based on latitude. The default is True.
+        If True, tilt is automatically calculated based on latitude. The default is True.
     tilt : flaot, optional
         PV panel tilt angle (deg). The default is 0.
     azim : float, optional
