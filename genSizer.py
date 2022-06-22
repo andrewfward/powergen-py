@@ -8,6 +8,12 @@
     Based on MATLAB code by Steven Nolan.
 
 """
+"""
+FUTURE WORK
+
+- substitute (most) lists with NumPy arrays --> faster performance (especially with numbers)
+
+"""
 
 import random, os
 import pandas as pd
@@ -276,6 +282,7 @@ class GenSizer:
     
     def check_converge(self):
         # check if first 3 particles have the same position for 2 subsequent generations
+        # and if these positions match both the global best and personal best for all 3
         # if so, the swarm has converged and we can exit the loop (quicker processing)
         # if not, carry on (until max iterations is met)
         
@@ -284,10 +291,13 @@ class GenSizer:
         for i in range(min(3,len(self.swarm))):
             positions.append(self.swarm[i].pos)
             positions.append(self.swarm[i].prev_pos)
+            positions.append(self.swarm[i].gbest_pos)
+            positions.append(self.swarm[i].pbest_pos)
         
             # if all current and past positions match, returns True. False otherwise
             self.converged = (positions.count(positions[0]) == len(positions))
         
+        del positions
     def animate(self,iteration_number):
         self.fig = plt.figure()
         ax = self.fig.add_subplot(projection = "3d")

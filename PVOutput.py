@@ -82,7 +82,7 @@ def automatic_dataset(lati, long, year):
 
 def pv_output(lati, long, year, capacity, 
               auto_dataset=True, dataset="merra2", system_loss=0, 
-              auto_tilt=True, tilt=0, azim=180):
+              auto_tilt=True, tilt=40, azim=180):
     """
     Parameters
     ----------
@@ -151,12 +151,14 @@ def pv_output(lati, long, year, capacity,
         'format': 'json'
     }
     
-    r = s.get(url, params=args)
+    print("Retrieving data from Renewables.ninja...")
     
-    # Parse JSON to get a pandas.DataFrame of data and dict of metadata
+    # Request JSON
+    r = s.get(url, params=args)
+    # Parse JSON to get a pandas.DataFrame of data
     parsed_response = json.loads(r.text)
     
     data = pd.read_json(json.dumps(parsed_response), orient='index')
     
-    # return data in Watts
+    # return PV panel power output in Watts
     return [p_out * 1000 for p_out in data["electricity"].values.tolist()]
