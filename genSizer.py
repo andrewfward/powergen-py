@@ -12,6 +12,8 @@
 FUTURE WORK
 
 - substitute (most) lists with NumPy arrays --> faster performance (especially with numbers)
+- add error handling (missing files/wrong formats/etc...)
+- improve convergence detection --> track across more generations
 
 """
 
@@ -20,7 +22,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-random.seed(19)      # rng
+random.seed(17)      # rng
 
 #-----FUNCTIONS--------------------------------------------------------------------------#
 
@@ -98,7 +100,7 @@ class GenSizer:
     # technical parameters  --> IDEALLY FROM EXTERNAL INPUT (user config)
     EbattMax_unit = 2040
     EbattMin_unit = 408
-    Pgen_unit = 300
+    Pgen_unit = 750
     fuelReq = 1
     timebreakerMax = 0
     autonomDaysMin = 2
@@ -298,6 +300,7 @@ class GenSizer:
             self.converged = (positions.count(positions[0]) == len(positions))
         
         del positions
+
     def animate(self,iteration_number):
         self.fig = plt.figure()
         ax = self.fig.add_subplot(projection = "3d")
@@ -318,6 +321,8 @@ class GenSizer:
         ax.view_init(20,50)
         
         plt.show()
+        
+        del self.fig
     
     def optimise(self, max_iter, plot=False, animate=False):
         
@@ -353,7 +358,7 @@ class GenSizer:
             self.update_vel_all(i)   # current iter number passed for inertia adjustment
             if animate == True: 
                 self.animate(i)
-            self.check_converge()
+            # self.check_converge()
             
             i += 1
             

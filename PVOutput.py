@@ -5,9 +5,15 @@
     
     Code by Alfredo Scalera (alfredo.scalera.2019@uni.strath.ac.uk)
     
-    Based on Python example in renewables.ninja API documentation:
-    https://www.renewables.ninja/documentation/api/python-example
+    Based on Python example in renewables.ninja API documentation.
+    Available at: https://www.renewables.ninja/documentation/api/python-example
 
+"""
+"""
+FUTURE WORK
+
+- add error handling
+- return data from pv_ouput() in numpy array?
 """
 
 import requests
@@ -32,7 +38,7 @@ def automatic_tilt(lati):
     
     Returns
     -------
-    float
+    float or int
         Optimal tilt angle for equator facing panel in degrees.
 
     """
@@ -93,7 +99,7 @@ def pv_output(lati, long, year, capacity,
     year : int
         Data year.
     capacity : flaot
-        Capacity of PV panel (kW).
+        Capacity of PV panel (Watts).
     dataset : string, optional
         Solar resources dataset.
         Options:    NASA MERRA-2 ("merra2"): global coverage, 1980 - ongoing.
@@ -141,9 +147,9 @@ def pv_output(lati, long, year, capacity,
         'date_from': start_date,
         'date_to': end_date,
         'dataset': dataset,
-        'capacity': capacity,
+        'capacity': capacity / 1000,    # from W to kW
         'system_loss': system_loss,
-        'tracking': 0,      # assuming fixed, tracking panels are more expensive and harder to maintain.
+        'tracking': 0,                  # assuming fixed, tracking panels are more expensive and harder to maintain.
         'tilt': tilt,
         'azim': azim,
         'header': False,
