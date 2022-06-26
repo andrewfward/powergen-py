@@ -11,9 +11,10 @@
 """
 FUTURE WORK
 
-- substitute (most) lists with NumPy arrays --> faster performance (especially with numbers)
 - add error handling (missing files/wrong formats/etc...)
-- improve convergence detection --> track across more generations
+- improve convergence detection --> track across more generations (detects prematurely)
+- flexible amount of hours (so can process data with different time spans)
+    > scale Pget etc. based on length of Psol
 
 """
 
@@ -283,6 +284,8 @@ class GenSizer:
             p.vel[2] = round(w*p.vel[2] + c1*r1*(pbest[2]-p.pos[2]) + c2*r2*(gbest[2]-p.pos[2]))
     
     def check_converge(self):
+        # !!! NEEDS IMPROVEMENT
+        
         # check if first 3 particles have the same position for 2 subsequent generations
         # and if these positions match both the global best and personal best for all 3
         # if so, the swarm has converged and we can exit the loop (quicker processing)
@@ -363,11 +366,11 @@ class GenSizer:
             i += 1
             
         # displaying results in console
-        print("\nSolar Panels:\t", self.swarm[0].pos[0])
-        print("Batteries:\t\t", self.swarm[0].pos[1])
-        print("Generators:\t\t", self.swarm[0].pos[2])
-        print("Fuel used:\t\t", self.swarm[0].fuel_used)
-        print("Cost:\t\t\t",self.swarm[0].cost)
+        print("\nSolar Panels:\t\t", self.swarm[0].pos[0])
+        print("Batteries:\t\t\t", self.swarm[0].pos[1])
+        print("Generators:\t\t\t", self.swarm[0].pos[2])
+        print("Fuel used:\t\t\t", self.swarm[0].fuel_used)
+        print("Cost:\t\t\t\t",self.swarm[0].cost)
         print("Days of Autonomy:",self.swarm[0].autonomDays)
         
         # !!! final plotting -- turn into proper method for final version

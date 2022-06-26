@@ -13,7 +13,7 @@
 FUTURE WORK
 
 - add error handling
-- return data from pv_ouput() in numpy array?
+
 """
 
 import requests
@@ -56,9 +56,9 @@ def automatic_tilt(lati):
 def automatic_dataset(lati, long, year):
     """
     Returns the optimal dataset based on location and year.
-    CM-SAF SARAH returned if location within "Europe square" and year between 2000-2015.
+    CM-SAF SARAH returned if location within "Europe/NA square" and year between 2000-2015.
     
-    "Europe square" (lat,lon):
+    "Europe/North Africa square" (lat,lon):
         
         (65,-11)        (65,44)
         
