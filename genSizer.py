@@ -18,7 +18,7 @@ FUTURE WORK
 
 """
 
-import random, os
+import random, os, math
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -59,6 +59,7 @@ class Particle:
     pbest_value = 0
     gbest_pos = []
     gbest_value = 0
+    # gbest_fuel = 0
     
     cost = 0
     
@@ -134,13 +135,16 @@ class GenSizer:
         
         for p in self.swarm:    # p = particle
             
+            p.prev_fuel = p.fuel_used
+            p.fuel_used = 0
+        
             # check if particle has negative values
             if p.pos[0] < 0 or p.pos[1] < 0 or p.pos[2] < 0:
                 self.invalid_particles.append(p)
                 continue
             
-            p.prev_fuel = p.fuel_used
-            p.fuel_used = 0
+            # p.prev_fuel = p.fuel_used
+            # p.fuel_used = 0
             p.Pgen = [0]*8760
             p.Ebatt = [0]*8761
             p.Edump = 0
@@ -230,7 +234,7 @@ class GenSizer:
     def reset_invalid(self):
         for p in self.swarm:
             if p in self.invalid_particles:
-                p.pos = p.prev_pos
+                p.pos = p.prev_pos.copy()
                 p.vel = [0, 0, 0]
                 p.fuel_used = p.prev_fuel
     
@@ -256,11 +260,12 @@ class GenSizer:
         gbest = min(values)
         i = values.index(gbest)
         gbest_pos = self.swarm[i].pbest_pos.copy()
+
         # update gbest for each particle in swarm
         for p in self.swarm:
-            p.gbest_pos = gbest_pos
+            p.gbest_pos = gbest_pos#.copy()
             p.gbest_value = gbest
-        
+            
     def update_vel_all(self, current_iter):
         
         for p in self.swarm:
@@ -271,17 +276,17 @@ class GenSizer:
                 # r1, r2 random factors
 
             w = 0.5*(self.max_iter - current_iter)/(self.max_iter) + 0.4        
-            c1 = 2.03
-            c2 = 2.03
+            c1 = 2.00
+            c2 = 2.00
             r1 = random.random()
             r2 = random.random()
             
             pbest = p.pbest_pos.copy()
             gbest = p.gbest_pos.copy()
 
-            p.vel[0] = round(w*p.vel[0] + c1*r1*(pbest[0]-p.pos[0]) + c2*r2*(gbest[0]-p.pos[0]))
-            p.vel[1] = round(w*p.vel[1] + c1*r1*(pbest[1]-p.pos[1]) + c2*r2*(gbest[1]-p.pos[1]))
-            p.vel[2] = round(w*p.vel[2] + c1*r1*(pbest[2]-p.pos[2]) + c2*r2*(gbest[2]-p.pos[2]))
+            p.vel[0] = math.floor(w*p.vel[0] + c1*r1*(pbest[0]-p.pos[0]) + c2*r2*(gbest[0]-p.pos[0]))
+            p.vel[1] = math.floor(w*p.vel[1] + c1*r1*(pbest[1]-p.pos[1]) + c2*r2*(gbest[1]-p.pos[1]))
+            p.vel[2] = math.floor(w*p.vel[2] + c1*r1*(pbest[2]-p.pos[2]) + c2*r2*(gbest[2]-p.pos[2]))
     
     def check_converge(self):
         # !!! NEEDS IMPROVEMENT
@@ -347,6 +352,7 @@ class GenSizer:
                 print("\nPos:",self.swarm[0].pos)
                 print("Cost:",self.swarm[0].cost)
                 print("Vel:",self.swarm[0].vel)
+                print("FUEL:", self.swarm[0].fuel_used)
                 
                 print("\nPbest:",self.swarm[0].pbest_pos)
                 print("Pb cost:",self.swarm[0].pbest_value)
