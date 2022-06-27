@@ -15,6 +15,7 @@ FUTURE WORK
 - improve convergence detection --> track across more generations (detects prematurely)
 - flexible amount of hours (so can process data with different time spans)
     > scale Pget etc. based on length of Psol
+- make plotting function external/isolated --> current one influences behaviour of PSO
 
 """
 
@@ -59,7 +60,6 @@ class Particle:
     pbest_value = 0
     gbest_pos = []
     gbest_value = 0
-    # gbest_fuel = 0
     
     cost = 0
     
