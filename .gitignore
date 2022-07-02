@@ -7,3 +7,6 @@
 
 # ignore python cache
 __pycache__
+
+# ignore test code
+test.py
