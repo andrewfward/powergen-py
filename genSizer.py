@@ -16,6 +16,7 @@ FUTURE WORK
 - flexible amount of hours (so can process data with different time spans)
     > scale Pget etc. based on length of Psol
 - make plotting function external/isolated --> current one influences behaviour of PSO
+- create automatic hyperparameter method
 
 """
 
@@ -24,7 +25,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-random.seed(17)      # rng
+random.seed(4)      # rng
 
 #-----FUNCTIONS--------------------------------------------------------------------------#
 
@@ -69,7 +70,7 @@ class Particle:
         self.name = name
         
         # random x, y, z coordinates
-        self.pos = [random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)]
+        self.pos = [random.randint(0, 1000), random.randint(0, 1000), random.randint(0, 1000)]
         
         # initial velocity is zero in all directions
         self.vel = [0,0,0]
@@ -93,13 +94,13 @@ class Particle:
     
 class GenSizer:
 
-    # cost of components    --> IDEALLY FROM EXTERNAL INPUT (user config)
+    # !!! cost of components    --> IDEALLY FROM EXTERNAL INPUT (user config)
     solCost = 150.98
     battCost = 301.71
     genCost = 320
     fuelCost = 0.32
     
-    # technical parameters  --> IDEALLY FROM EXTERNAL INPUT (user config)
+    # !!! technical parameters  --> IDEALLY FROM EXTERNAL INPUT (user config)
     EbattMax_unit = 2040
     EbattMin_unit = 408
     Pgen_unit = 750
@@ -143,8 +144,6 @@ class GenSizer:
                 self.invalid_particles.append(p)
                 continue
             
-            # p.prev_fuel = p.fuel_used
-            # p.fuel_used = 0
             p.Pgen = [0]*8760
             p.Ebatt = [0]*8761
             p.Edump = 0
@@ -226,7 +225,7 @@ class GenSizer:
     def delete_invalid(self):
         for p in self.invalid_particles:
             self.swarm.remove(p)
-    
+        
     def update_pos_all(self):
         for p in self.swarm:
             p.updatePosition()
@@ -274,10 +273,22 @@ class GenSizer:
                 # w inertia
                 # c1 self confidence, c2 social conformity
                 # r1, r2 random factors
-
-            w = 0.5*(self.max_iter - current_iter)/(self.max_iter) + 0.4        
-            c1 = 2.00
-            c2 = 2.00
+            
+            # LINEAR
+            w = 0.5*(self.max_iter - current_iter)/(self.max_iter) + 0.4
+            
+            # PARA UP
+            # w = 0.5 * ((current_iter - self.max_iter)**2 / self.max_iter**2) + 0.4
+            
+            # PARA DOWN
+            # w = 0.9 - 0.5 * (current_iter**2 / self.max_iter**2)
+            
+            # LIENAR C1 & C2
+            c1 = -3*(current_iter / self.max_iter) + 3.5
+            c2 = 3*(current_iter / self.max_iter) + 0.5
+            
+            # c1 = 2.05
+            # c2 = 2.05
             r1 = random.random()
             r2 = random.random()
             
@@ -290,25 +301,19 @@ class GenSizer:
     
     def check_converge(self):
         # !!! NEEDS IMPROVEMENT
-        
-        # check if first 3 particles have the same position for 2 subsequent generations
-        # and if these positions match both the global best and personal best for all 3
-        # if so, the swarm has converged and we can exit the loop (quicker processing)
-        # if not, carry on (until max iterations is met)
-        
-        # retrieve current and past pos for first 3 particles (or all if less than 3 particles)
-        positions = []
-        for i in range(min(3,len(self.swarm))):
-            positions.append(self.swarm[i].pos)
-            positions.append(self.swarm[i].prev_pos)
-            positions.append(self.swarm[i].gbest_pos)
-            positions.append(self.swarm[i].pbest_pos)
-        
-            # if all current and past positions match, returns True. False otherwise
-            self.converged = (positions.count(positions[0]) == len(positions))
-        
-        del positions
 
+        # positions = [particle.pos for particle in self.swarm]
+        # self.converged = (positions.count(positions[0]) == len(positions))
+        
+        # del positions
+        
+        # retrieve velocity of each particle and place in list (using list comprehension)
+        velocities = [particle.vel for particle in self.swarm]
+        # self.converged is true if all the particles have 0 velocity in all directions (and condition to check for empty list)
+        self.converged = (velocities.count([0,0,0]) == len(velocities)) #and velocities
+        
+        del velocities
+        
     def animate(self,iteration_number):
         self.fig = plt.figure()
         ax = self.fig.add_subplot(projection = "3d")
@@ -365,9 +370,11 @@ class GenSizer:
             self.reset_invalid()
             self.fitness_all()
             self.update_vel_all(i)   # current iter number passed for inertia adjustment
+            # self.check_converge()
+            
             if animate == True: 
                 self.animate(i)
-            # self.check_converge()
+
             
             i += 1
             
