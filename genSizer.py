@@ -25,7 +25,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-random.seed(4)      # rng
+random.seed(420)      # rng
 
 #-----FUNCTIONS--------------------------------------------------------------------------#
 
@@ -275,20 +275,20 @@ class GenSizer:
                 # r1, r2 random factors
             
             # LINEAR
-            w = 0.5*(self.max_iter - current_iter)/(self.max_iter) + 0.4
+            # w = 0.5*(self.max_iter - current_iter)/(self.max_iter) + 0.4
             
             # PARA UP
             # w = 0.5 * ((current_iter - self.max_iter)**2 / self.max_iter**2) + 0.4
             
             # PARA DOWN
-            # w = 0.9 - 0.5 * (current_iter**2 / self.max_iter**2)
+            w = 0.9 - 0.5 * (current_iter**2 / self.max_iter**2)
             
             # LIENAR C1 & C2
-            c1 = -3*(current_iter / self.max_iter) + 3.5
-            c2 = 3*(current_iter / self.max_iter) + 0.5
+            # c1 = -3*(current_iter / self.max_iter) + 3.5
+            # c2 = 3*(current_iter / self.max_iter) + 0.5
             
-            # c1 = 2.05
-            # c2 = 2.05
+            c1 = 2.05
+            c2 = 2.05
             r1 = random.random()
             r2 = random.random()
             
@@ -302,17 +302,20 @@ class GenSizer:
     def check_converge(self):
         # !!! NEEDS IMPROVEMENT
 
-        # positions = [particle.pos for particle in self.swarm]
+        positions = [particle.pos for particle in self.swarm]
         # self.converged = (positions.count(positions[0]) == len(positions))
         
-        # del positions
         
         # retrieve velocity of each particle and place in list (using list comprehension)
         velocities = [particle.vel for particle in self.swarm]
-        # self.converged is true if all the particles have 0 velocity in all directions (and condition to check for empty list)
-        self.converged = (velocities.count([0,0,0]) == len(velocities)) #and velocities
+        
+        # self.converged is true if:
+        #   all the particles have 0 velocity in all directions (and condition to check for empty list)
+        #   all particles are in the same position
+        self.converged = (velocities.count([0,0,0]) == len(velocities)) and (positions.count(positions[0]) == len(positions))
         
         del velocities
+        del positions
         
     def animate(self,iteration_number):
         self.fig = plt.figure()
@@ -346,7 +349,7 @@ class GenSizer:
         self.test_constraints()
         self.delete_invalid()
         
-        # proper loop
+        # PSO loop
         self.converged = False
         i = 0
         while (i < max_iter) and (self.converged == False):
@@ -370,7 +373,7 @@ class GenSizer:
             self.reset_invalid()
             self.fitness_all()
             self.update_vel_all(i)   # current iter number passed for inertia adjustment
-            # self.check_converge()
+            self.check_converge()
             
             if animate == True: 
                 self.animate(i)
