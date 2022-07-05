@@ -16,6 +16,8 @@ FUTURE WORK
 """
 import pandas as pd
 import numpy as np
+from math import sqrt
+
 
 class Node:
     
@@ -35,7 +37,7 @@ class Node:
         self.curr = [0]*len(power_demand)
         
         # line resistance (between itself and parent node)
-        self.res_line = None # !!!
+        self.res_line = 0
         
         # line current (between itself and parent node)
         self.curr_line = [0]*len(power_demand)
@@ -48,8 +50,8 @@ class Node:
         self.constraint_satisfied = True
         
         # index of gate node top of subtree
-        # initially source node (index 0)
-        self.subtree = 0
+        # initially itself, set with __init_subtree method
+        self.subtree = None
         
         # index of parent node
         # initially source node (index 0)
@@ -61,7 +63,7 @@ class Node:
         
         if self.parent == 0:
             return True
-        pass
+
 
 class Source:
     
@@ -71,12 +73,16 @@ class Source:
         
         self.loc = tuple(location)
 
+
 class NetworkDesigner:
     
-    def __init__(self):
-        pass
+    def __init__(self, network_voltage):
+        
+        self.Vnet = network_voltage
     
     def import_customers(self, scale=1):
+        
+        # !!! REPLACED WITH KML READER LATER
         
         df = pd.read_csv("customers.csv")
         df = df.set_index("ID")
@@ -86,6 +92,7 @@ class NetworkDesigner:
         # !!! TRY REPLACING WITH MAP FUNCTION
         source = True
         for customer_id,data in df.iteritems():
+            # first entry is source
             if source:
                 source_location = [scale * int(data[0]), scale * int(data[1])]
                 self.nodes.append(Source(source_location))
@@ -94,62 +101,81 @@ class NetworkDesigner:
                 location = [scale * int(data[0]), scale * int(data[1])]
                 power_demand = data[2:].tolist()
                 self.nodes.append(Node(location, power_demand, customer_id))
-                
-    # def __init__(self, nominal_voltage):
-        
-    #     self.Vnom = nominal_voltage
     
-    # def import_customers(self, scale=1):
+    def __init_subtrees(self):
+        """
+        For initialisation phase only. Sets subtree of each node as node itself.
         
-    #     # import customer profiles from CSV "customers.csv"
-        
-    #     # pandas.DataFrame populated with data from customers.csv
-    #     df = pd.read_csv("customers.csv")
-    #     # treat first column as index
-    #     df = df.set_index("ID")
-        
-    #     self.nodes = []
-        
-    #     # for each customer create a node
-    #     for customer_id,data in df.iteritems():
-            
-    #         # get customer (node) location scaled accordingly
-    #         # index 0 -> X, index 1 -> Y
-    #         loc = [scale * int(data[0]), scale * int(data[1])]
-    #         # get customer power demand
-    #         power_demand = data[2:].tolist()
-    #         # create customer node with location, power demand and customer id
-    #         self.nodes.append(Node(loc,power_demand,customer_id))
-        
-    #     # first node is source
-    #     self.nodes[0].source = True
-    
-    # def check_source(self):
-    #     """
-    #     Checks if a source is present
-    #     """
-    #     found = False
-    #     for node in self.nodes:
-    #         if node.customer_id.lower() in ["source","src","generation point"]:
-    #             node.source = True
-    #             found = True
-    #             break
-        
-    #     if found == False:
-    #         self.nodes[0].customer_id = "SOURCE"
-    #         self.nodes[0].source = True
+        """
 
-    # def cable_specs(self, resistance_unit_length, current_rating, cost_unit_length):
-    #     # !!! future: add similar import to customers for cables
-        
-    #     self.res_l = resistance_unit_length
-    #     self.Imax = current_rating
-    #     self.cost_l = cost_unit_length
-        
+        for index, node in enumerate(self.nodes):
+            # source node excluded
+            if str(type(node)) == "Source":
+                pass
+            else:
+                node.subtree = index
     
+    def __init_matrices(self):
+        """
+        For initialisation phase only. Creates adjacency, distance and checked path matrices for CMST.
+        
+        """
+
+        size = (len(self.nodes), len(self.nodes))
+        
+        # initially no nodes connected to each other
+        self.adj_matrix = np.zeros(size)
+        # create distance matrix
+        self.dist_matrix = np.zeros(size)
+        # create path check matrix (paths between node and itself set as checked (True))
+        self.path_check_matrix = np.eye(size[0], dtype=bool)
+        
+        # populate distance matrix with distances
+        # and connect all nodes to source
+        for index1,node1 in enumerate(self.nodes):
+            for index2,node2 in enumerate(self.nodes):
+                x1 = node1.loc[0]
+                y1 = node1.loc[1]
+                
+                x2 = node2.loc[0]
+                y2 = node2.loc[1]
+                
+                distance = sqrt((y2-y1)**2 + (x2-x1)**2)
+                
+                self.dist_matrix[index1,index2] = distance
+                
+                # if calulcating the distance between source and node
+                # connect them in adj matrix
+                if type(node1) == Source or type(node2) == Source:
+                    self.adj_matrix[index1,index2] = distance
+                    
+                    
+    def cable_specs(self, resistance_per_km, current_rating, cost_per_km):
+        # !!! future: add similar import to customers for cables
+        
+        # convert units to ohm per meter
+        self.res_per_meter = resistance_per_km / 1000
+        self.Imax = current_rating
+        # convert untis to dollars per meter
+        self.cost_per_meter = cost_per_km / 1000
+    
+    def build_network(self):
+
+        # INITIALISATION PHASE
+        
+        # !!! might want to make it external (program calls before .build_network())
+        self.import_customers(scale=1)     # !!! scale factor goes here
+        
+        # set initial subtrees
+        self.__init_subtrees()
+        # create adjacency / distance / path check matrices
+        self.__init_matrices()
+
 """
 TESTING AREA
 """
 
-n = NetworkDesigner()
+n = NetworkDesigner(240)
 n.import_customers()
+n._NetworkDesigner__init_subtrees()
+n._NetworkDesigner__init_matrices()
