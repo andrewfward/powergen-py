@@ -5,7 +5,7 @@
     
     Code by Alfredo Scalera (alfredo.scalera.2019@uni.strath.ac.uk)
     
-    Based on MATLAB code by Steven Nolan.
+    Based on MATLAB code by Steven Nolan ( ).
 
 """
 """

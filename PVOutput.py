@@ -6,6 +6,7 @@
     Code by Alfredo Scalera (alfredo.scalera.2019@uni.strath.ac.uk)
     
     Based on Python example in renewables.ninja API documentation.
+    Original author: Stefan Pfenninger
     Available at: https://www.renewables.ninja/documentation/api/python-example
 
 """
