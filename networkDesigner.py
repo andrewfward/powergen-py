@@ -263,20 +263,35 @@ class NetworkDesigner:
                 
         return [best_trade, best_join]
     
+    def _check_current(self,node1,node2):
+        
+        pass
+    
+    def _check_voltage(self,node1,node2):
+        
+        pass
+        
     def _check_join(self,node_pair):
         
+        # indexes for best trade and best join
         best_trade = node_pair[0]
         best_join = node_pair[1]
+        
+        # retrieve respective node objects
+        best_trade_node = self.nodes[best_trade]
+        best_join_node = self.nodes[best_join]
         
         # mark path between two nodes as checked
         self.path_check_matrix[best_trade, best_join] = True
         self.path_check_matrix[best_join, best_trade] = True
         
         # best trade (gate) node is now part of subtree of best join node
-        self.nodes[best_trade].subtree = self.nodes[best_join].subtree
+        # self.nodes[best_trade].subtree = self.nodes[best_join].subtree
+        best_trade_node.subtree = best_join_node.subtree 
         
         # set parent of best trade to best join (connecting best trade to best join)
-        self.nodes[best_trade].parent = best_join
+        # self.nodes[best_trade].parent = best_join
+        best_trade_node.parent = best_join
         
         # if no further improvements
         if self.old_best_join == best_join and self.old_best_trade == best_trade:
@@ -298,8 +313,18 @@ class NetworkDesigner:
         
         # calculate line resistance between best trade and best join
         # note: best join is parent of best trade
-        self.calculate_resistance(self.nodes[best_trade])
+        self.calculate_resistance(best_trade_node)
         
+        for t in range(len(best_trade_node.Pdem)):
+            
+            best_join_node.current_calculated = False
+            best_trade_node.current_calculated = False
+            
+            # CURRENT CHECK LOOP
+            
+            # VOLTAGE CHECK LOOP
+            
+            pass
     
     def build_network(self):
         """
