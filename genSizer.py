@@ -25,7 +25,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-random.seed(420)      # rng
+random.seed(123)      # rng
 
 #-----FUNCTIONS--------------------------------------------------------------------------#
 
@@ -70,7 +70,7 @@ class Particle:
         self.name = name
         
         # random x, y, z coordinates
-        self.pos = [random.randint(0, 1000), random.randint(0, 1000), random.randint(0, 1000)]
+        self.pos = [random.randint(0, 500), random.randint(0, 500), random.randint(0, 500)]
         
         # initial velocity is zero in all directions
         self.vel = [0,0,0]
@@ -108,7 +108,7 @@ class GenSizer:
     timebreakerMax = 0
     autonomDaysMin = 2
     
-    def __init__(self, swarm_size, psol_unit):      # psol_unit is list
+    def __init__(self, swarm_size, power_demand, psol_unit):      # psol_unit is list
         self.swarm_size = swarm_size
         
         # generate swarm
@@ -118,9 +118,10 @@ class GenSizer:
         
         # retrieve power demand as list
         # !!! using automatic excel file detection, can change to manual
-        df = pd.read_excel(excelFileName(), header=0, index_col=0)
-        self.Pdem = df["Pdem"].values.tolist()
-        self.Pdem = self.Pdem[0:8760]
+        # df = pd.read_excel(excelFileName(), header=0, index_col=0)
+        # self.Pdem = df["Pdem"].values.tolist()
+        # self.Pdem = self.Pdem[0:8760]
+        self.Pdem = power_demand[0:8760]
         
         # retrieve single solar panel output power as list
         # self.Psol_unit = df["Psol"].values.tolist()
@@ -340,7 +341,7 @@ class GenSizer:
         
         del self.fig
     
-    def optimise(self, max_iter, plot=False, animate=False):
+    def optimise(self, max_iter, final_plot=False, animate=False):
         
         # used for inertia correction (w) in velocity update
         self.max_iter = max_iter
@@ -387,10 +388,10 @@ class GenSizer:
         print("Generators:\t\t\t", self.swarm[0].pos[2])
         print("Fuel used:\t\t\t", self.swarm[0].fuel_used)
         print("Cost:\t\t\t\t",self.swarm[0].cost)
-        print("Days of Autonomy:",self.swarm[0].autonomDays)
+        print("Days of Autonomy:\t",self.swarm[0].autonomDays)
         
         # !!! final plotting -- turn into proper method for final version
-        if plot == True:
+        if final_plot == True:
             
             t = [x for x in range(8760)]
             xmax = 72

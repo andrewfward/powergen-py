@@ -12,7 +12,7 @@
 FUTURE WORK
 
 - create (potentially external) function to extract info (location etc) directly from KML files.
-
+- might change resistance calc method to take node index instead of node obj as argument
 """
 import pandas as pd
 import numpy as np
@@ -57,9 +57,21 @@ class Node:
         # initially source node (index 0)
         self.parent = 0
         
+        # indices of child nodes
+        self.children = []
+        
         self.cost = 0
     
     def isgate(self):
+        """
+        Checks if node is a gate node. Gate nodes are directly connected to the source.
+
+        Returns
+        -------
+        bool
+            True if node is a gate. False otherwise.
+
+        """
         
         if self.parent == 0:
             return True
@@ -72,6 +84,9 @@ class Source:
         self.customer_id = "SOURCE"
         
         self.loc = tuple(location)
+        
+        # part of own subtree
+        self.subtree = 0
 
 
 class NetworkDesigner:
@@ -116,7 +131,7 @@ class NetworkDesigner:
         for index, node in enumerate(self.nodes):
             # source node excluded
             if type(node) == Source:
-                pass
+                continue
             else:
                 node.subtree = index
     
@@ -165,7 +180,19 @@ class NetworkDesigner:
         self.cost_per_meter = cost_per_km / 1000
     
     def calculate_resistance(self,node):
-        # calculates resistance between node and parent node
+        """
+        Calculates resistance of line connecting input node and its parent.
+
+        Parameters
+        ----------
+        node : Node object
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
         
         index_node = self.nodes.index(node)
         index_parent = node.parent
@@ -175,7 +202,7 @@ class NetworkDesigner:
         
         for node in self.nodes:
             if type(node) == Source:
-                pass
+                continue
             else:
                 self.calculate_resistance(node)
     
@@ -201,7 +228,19 @@ class NetworkDesigner:
         Calculates value for trade-off function for gate-node connection.    
         
         Trade-off = distance(source-gate) - minimum distance
-        
+
+        Parameters
+        ----------
+        index_gate : int
+            Index of gate node attempting to connect.
+        min_dist : TYPE
+            Minimum distance within network.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
         """
         
         return self.dist_matrix[index_gate,0] - min_dist 
@@ -214,7 +253,7 @@ class NetworkDesigner:
         Returns
         -------
         list
-            Indexes of candidate nodes. Index 0 is gate node, Index 1 is other node.
+            Indices of candidate nodes. Index 0 is gate node, Index 1 is other node.
 
         """
         # set up
@@ -224,26 +263,28 @@ class NetworkDesigner:
         
         # filter gate nodes
         gates = filter(lambda node: node.isgate() if type(node) == Node else False, self.nodes)
+         
         for gate in gates:
             
             # gate node index (in nodes array)
             index_gate = self.nodes.index(gate)
+            
             print(index_gate)
             
             # initially gate considered closest to source
-            min_distance = self.dist_matrix[index_gate,0]
+            min_distance = float(self.dist_matrix[index_gate,0])
             
             for index_node, node in enumerate(self.nodes):
                 
                 # look for new minimum distance
                 # EXCEPT: if node is gate itself, path already checked, node and gate connected, node is source
-                if type(node) == Source:
-                    continue
-                elif index_node == index_gate or self.path_check_matrix[index_gate,index_node] or gate.subtree == node.subtree:
+                # if type(node) == Source:
+                #     continue
+                if index_node == index_gate or self.path_check_matrix[index_gate,index_node] or gate.subtree == node.subtree:
                     continue
                 
                 # if found node closer to gate than source
-                elif self.dist_matrix[index_gate,index_node] < min_distance:
+                elif self.dist_matrix[index_gate,index_node] < min_distance and self.adj_matrix[index_gate,index_node] == 0:
                     
                     # update minimum distance
                     min_distance = float(self.dist_matrix[index_gate,index_node])
@@ -259,11 +300,18 @@ class NetworkDesigner:
                 best_join = index_node
                 tradeoff = temp_tradeoff
                 
-                print("found new tradeoff",tradeoff)
+                print("found new tradeoff",tradeoff,index_node)
                 
         return [best_trade, best_join]
     
-    def _check_current(self,node1,node2):
+    def _check_current(self, starting_node_index):
+        
+        # set inital active node index and node object
+        active_index = starting_node_index
+        active_node = self.nodes[active_index]
+        
+        
+        
         
         pass
     
@@ -272,8 +320,12 @@ class NetworkDesigner:
         pass
         
     def _check_join(self,node_pair):
+        """
+        Checks if candidate nodes can be connected by if current and voltage constraints are met.
         
-        # indexes for best trade and best join
+        """
+        
+        # indices for best trade and best join
         best_trade = node_pair[0]
         best_join = node_pair[1]
         
@@ -286,18 +338,16 @@ class NetworkDesigner:
         self.path_check_matrix[best_join, best_trade] = True
         
         # best trade (gate) node is now part of subtree of best join node
-        # self.nodes[best_trade].subtree = self.nodes[best_join].subtree
         best_trade_node.subtree = best_join_node.subtree 
         
         # set parent of best trade to best join (connecting best trade to best join)
-        # self.nodes[best_trade].parent = best_join
         best_trade_node.parent = best_join
         
         # if no further improvements
         if self.old_best_join == best_join and self.old_best_trade == best_trade:
             
             """
-            CHANGE WHILE LOOP CONDITION TO FALSE
+            CHANGE WHILE LOOP CONDITION TO FALSE (in build network method)
             """
             pass
         
@@ -315,14 +365,23 @@ class NetworkDesigner:
         # note: best join is parent of best trade
         self.calculate_resistance(best_trade_node)
         
+        # for each time step in power demand check if current and voltage meet requirements
         for t in range(len(best_trade_node.Pdem)):
             
-            best_join_node.current_calculated = False
-            best_trade_node.current_calculated = False
+            # reset check variables of every node
+            for node in self.nodes:
+                node.current_calculated = False
+                node.voltage_calculated = False
+                
+            # reset index of active node to best trade (gate node)
+            # active_node = best_trade
             
             # CURRENT CHECK LOOP
+            # feed best trade index
+            
             
             # VOLTAGE CHECK LOOP
+            # feed best trade index
             
             pass
     

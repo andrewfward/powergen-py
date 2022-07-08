@@ -87,7 +87,7 @@ def automatic_dataset(lati, long, year):
     else:
         return "merra2"
 
-def pv_output(lati, long, year, capacity, 
+def pv_output(lati, long, capacity, year=2019,
               auto_dataset=True, dataset="merra2", system_loss=0, 
               auto_tilt=True, tilt=40, azim=180):
     """
