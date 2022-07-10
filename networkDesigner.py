@@ -103,7 +103,7 @@ class NetworkDesigner:
         
         # !!! REPLACED WITH KML READER LATER
         
-        df = pd.read_csv("customers.csv")
+        df = pd.read_csv("nodes.csv")
         df = df.set_index("ID")
         
         self.nodes = []
