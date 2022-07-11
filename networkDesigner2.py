@@ -187,7 +187,17 @@ class NetworkDesigner:
     def calculate_res(self,node):
         """
         Calculates the resistance between a node and its parent.
-        
+
+        Parameters
+        ----------
+        node : Node
+            Node object for which line resistance of upstream connection is
+            calculated.
+
+        Returns
+        -------
+        None.
+
         """
         
         if type(node) == Node:
@@ -224,6 +234,7 @@ class NetworkDesigner:
                     # if voltage drop too high constraint broken
                     if (current * node.line_res) > self.Vdrop_max:
                         node.csrt_sat = False
+                        break
                     # if voltage drop acceptable constraint satisfied
                     else:
                         node.csrt_sat = True
@@ -235,7 +246,17 @@ class NetworkDesigner:
     #-------CMST METHODS------------------------------------------------------#
     
     def _candidate_nodes(self):
-        # RETURN INDICES OF GATE & NODE
+        """
+        Finds gate-node paid with best trade-off value for new connection.
+
+        Returns
+        -------
+        best_gate_idx : int
+            Index of gate with best trade-off value.
+        best_node_idx : int
+            Index of best node to join to.
+
+        """
         
         # filter out gate nodes (nodes connected to source)
         gates = filter(lambda node: node.isgate() == True, self.nodes)
@@ -287,7 +308,65 @@ class NetworkDesigner:
         print("tradeoff: ", best_tradeoff)
         
         return best_gate_idx, best_node_idx
+    
+    def _save_state(self):
+        """
+        Saves the network's current state.
+
+        Returns
+        -------
+        None.
+
+        """
         
+        self.prev_nodes = self.nodes.copy()
+        self.prev_path_checked = self.path_checked.copy()
+        self.prev_connections = self.connections.copy()
+        
+    def _load_prev_state(self):
+        
+        pass
+    
+    def _connect_nodes(self, gate_idx, node_idx):
+        """
+        Connects a gate (node directly connected to source) with a specified
+        node.
+
+        Parameters
+        ----------
+        gate_idx : int
+            Index of joining gate (in nodes array).
+        node_idx : int
+            Index of joining node (in nodes array).
+
+        Returns
+        -------
+        None.
+
+        """
+        # get gate & node objects
+        gate = self.nodes[gate_idx]
+        node = self.nodes[node_idx]
+        
+        # mark path as checked
+        self.path_checked[gate_idx,node_idx] = True
+        self.path_checked[node_idx,gate_idx] = True        
+        
+        # mark connection in adjacency matrix
+        distance = self.distances[gate_idx,node_idx]
+        self.connections[gate_idx,node_idx] = distance
+        self.connections[node_idx,gate_idx] = distance
+        
+        # update gate's subtree and parent, node's child
+        gate.parent = node_idx
+        gate.subtree = node.subtree
+        node.child.append(gate_idx)  # mark gate as child of node
+        
+        # calculate line resistance of new connection
+        # note: function calculates resistance of upstream connection, so
+        #       passing in gate as argument because it is now downstream. 
+        self.calculate_res(gate)
+    
     #-------HIGH LEVEL METHODS------------------------------------------------#
     
     def setup(self):
@@ -312,12 +391,21 @@ class NetworkDesigner:
     def cmst(self):
         
         further_improvements = True
+        self.old_best_gate = None
+        self.old_best_node = None
         
         while further_improvements == True:
             
             # find candidate pair
+            best_gate_idx, best_node_idx = self._candidate_nodes()
             
-            # connect pair & test constraints (I & V)
+            # save current state before making connection
+            self._save_state()
+
+            # connect pair
+            self._connect_nodes(best_gate_idx, best_node_idx)
+            
+            # test constraints on new connection
             
             # if constraint broken:
                 # undo connection & mark path as checked
