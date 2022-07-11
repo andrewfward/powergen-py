@@ -226,20 +226,19 @@ class NetworkDesigner:
                 # calculate resistance between each node and respective parent
                 self.calculate_res(node)
                 
-                # I(t) = Pdem(t) / Vnet         (DC current)
-                currents = ((Pdem/self.Vnet) for Pdem in node.Pdem)
+                # calculate current drawn by node    I(t) = Pdem(t) / Vnet [DC]
+                node.current = [(Pdem/self.Vnet) for Pdem in node.Pdem]
                 
-                for current in currents:
-                    
-                    # if voltage drop too high constraint broken
-                    if (current * node.line_res) > self.Vdrop_max:
-                        node.csrt_sat = False
-                        break
-                    # if voltage drop acceptable constraint satisfied
-                    else:
-                        node.csrt_sat = True
-            
-            # skip if source object passed
+                # create an array from currents
+                currents = np.array(node.current)
+                # voltage drops is current * line resistance
+                voltage_drops = node.line_res * currents
+                
+                if max(voltage_drops) > self.Vdrop_max:
+                    node.csrt_sat = False
+                else:
+                    node.csrt_sat = True
+
             else:
                 pass
     
@@ -360,7 +359,7 @@ class NetworkDesigner:
         # update gate's subtree and parent, node's child
         gate.parent = node_idx
         gate.subtree = node.subtree
-        node.child.append(gate_idx)  # mark gate as child of node
+        node.children.append(gate_idx)  # mark gate as child of node
         
         # calculate line resistance of new connection
         # note: function calculates resistance of upstream connection, so
@@ -374,8 +373,9 @@ class NetworkDesigner:
         Initialisation phase for CMST.
         Step 1: assign each node to own subtree
         Step 2: create distance, connection, checked paths matrices
-        Step 3: test voltage constraints of initial connections
-                > calculate resistance of connections
+        Step 3: calculate current drawn by each node
+        Step 4: calculate resistance of all connections
+        Step 5: test voltage constraint on connection
         
         """
         # all nodes part of own subtree initially
@@ -397,13 +397,15 @@ class NetworkDesigner:
         while further_improvements == True:
             
             # find candidate pair
-            best_gate_idx, best_node_idx = self._candidate_nodes()
+            best_gate, best_node = self._candidate_nodes()
             
             # save current state before making connection
             self._save_state()
-
+            
+            further_improvements = False
+            
             # connect pair
-            self._connect_nodes(best_gate_idx, best_node_idx)
+            # self._connect_nodes(best_gate_idx, best_node_idx)
             
             # test constraints on new connection
             
