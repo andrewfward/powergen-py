@@ -10,6 +10,8 @@
 
 import pandas as pd
 import numpy as np
+import sys
+
 
 class Source:
     
@@ -17,16 +19,18 @@ class Source:
     
     def __init__(self, location):
         
-        # location is tuple --> [0] is X, [1] is Y
-        self.loc = location
+        self.loc = tuple(location)  # [0] is X, [1] is Y
+    
+    def isgate(self):
+        
+        return False
 
 
 class Node:
     
     def __init__(self, location, node_id, power_demand):
         
-        # location is tuple --> [0] is X, [1] is Y
-        self.loc = tuple(location)
+        self.loc = tuple(location)  # [0] is X, [1] is Y
         
         self.node_id = str(node_id)
         
@@ -34,36 +38,28 @@ class Node:
         
         self.cost = 0
         
-        # initially constraints considered as satisfied
-        self.csrt_sat = True
+        self.csrt_sat = True  # constraints satisfied upon creation
         
-        #-------CONNECTIONS--------------------#
+        #-------CONNECTIONS---------------------------------------------------#
         
-        # all nodes are initially connected to the source
-        self.parent = 0
+        self.parent = 0  # all nodes initially connected to source
         
         self.children = []
         
-        # resistance between itself and parent node (upstream)
-        self.line_res = 0
+        self.line_res = 0  # resistance in line between node and its parent
         
-        #-------CURRENT/VOLTAGE TRACKERS-------#
+        #-------CURRENT/VOLTAGE TRACKERS--------------------------------------#
         
-        # current drawn by node at each time step
-        self.I = [0]*len(power_demand)
+        self.I = [0]*len(power_demand)  # current drawn by node at each hour
         
-        # current in line between itself and parent node (upstream) at each time step
-        self.I_line = [0]*len(power_demand)
+        self.I_line = [0]*len(power_demand)  # current in line at each hour
         
-        # voltage across node at each time step
-        self.V = [0]*len(power_demand)
+        self.V = [0]*len(power_demand)  # voltage across node at each time step
         
-        #-------CMST TRACKERS------------------#
+        #-------CMST TRACKERS-------------------------------------------------#
         
         self.V_checked = False
         self.I_checked = False
-        
-        pass
     
     def isgate(self):
         """
@@ -71,7 +67,11 @@ class Node:
         False otherwise.
         
         """
-        pass
+        
+        if self.parent == 0:
+            return True
+        else:
+            return False
 
 
 class NetworkDesigner:
@@ -82,12 +82,10 @@ class NetworkDesigner:
         self.Vnet = network_voltage
         
         # if maximum voltage drop not specified, take as 6% of network voltage
-        if max_V_drop == None:
+        if max_V_drop is None:
             self.Vdrop_max = 0.06 * self.Vnet
         else:
             self.Vdrop_max = max_V_drop
-        
-        pass
     
     def import_nodes_kml(self,scale_factor=1):
         
@@ -99,11 +97,13 @@ class NetworkDesigner:
         
         scale = scale_factor
         
+        # read CSV file
         df = pd.read_csv("nodes.csv")
         df = df.set_index("ID")
         
         self.nodes = []
         
+        # create source and node objects from entries in CSV
         source = True
         for node_id,data in df.iteritems():
             # first entry is source
@@ -125,7 +125,18 @@ class NetworkDesigner:
         
         self.cost_meter = cost_per_km / 1000
     
+    #-------INITIALISATION PHASE----------------------------------------------#
+    
     def _init_subtrees(self):
+        """
+        Sets the subtree of each node to iteself. Only used in initialisation
+        phase for Esau-Williams algorithm.
+
+        Returns
+        -------
+        None.
+
+        """
         
         for index, node in enumerate(self.nodes):
             if type(node) == Source:
@@ -135,7 +146,8 @@ class NetworkDesigner:
     
     def _init_matrices(self):
         """
-        Create connection/distance/resistanece/checked paths matrices. Uses numpy arrays.
+        Create connection/distance/resistanece/checked paths matrices.
+        Uses numpy arrays.
         
         """
         
@@ -177,11 +189,14 @@ class NetworkDesigner:
         Calculates the resistance between a node and its parent.
         
         """
+        
         if type(node) == Node:
-            node_index = self.nodes.index(node)
-            parent_index = node.parent
+            node_idx = self.nodes.index(node)  # node's index
+            parent_idx = node.parent           # node's parent's index
             
-            node.line_res = self.res_meter * self.distances[node_index,parent_index]
+            # line resistance = res/m * distance
+            node.line_res = (self.res_meter
+                            * self.distances[node_idx,parent_idx])
         
         # if source passed
         else:
@@ -190,6 +205,7 @@ class NetworkDesigner:
     def _init_constraints(self):
         """
         Initial constraints test before Esau-Williams algorithm is applied.
+        Tests if voltage drops across connections are acceptable.
         
         """
 
@@ -201,38 +217,115 @@ class NetworkDesigner:
                 self.calculate_res(node)
                 
                 # I(t) = Pdem(t) / Vnet         (DC current)
-                I = [(Pdem/self.Vnet) for Pdem in node.Pdem]
+                currents = ((Pdem/self.Vnet) for Pdem in node.Pdem)
                 
-                # if voltage drop across connection line above maximum allowable
-                if max(I) * node.line_res > self.Vdrop_max:
+                for current in currents:
                     
-                    # node breaks constraint
-                    node.csrt_sat = False
-                
-                else:
-                    node.csrt_sat = True
+                    # if voltage drop too high constraint broken
+                    if (current * node.line_res) > self.Vdrop_max:
+                        node.csrt_sat = False
+                    # if voltage drop acceptable constraint satisfied
+                    else:
+                        node.csrt_sat = True
             
+            # skip if source object passed
             else:
                 pass
+    
+    #-------CMST METHODS------------------------------------------------------#
+    
+    def _candidate_nodes(self):
+        # RETURN INDICES OF GATE & NODE
+        
+        # filter out gate nodes (nodes connected to source)
+        gates = filter(lambda node: node.isgate() == True, self.nodes)
+        
+        best_tradeoff = 0        
+        for gate in gates:
+            
+            gate_idx = self.nodes.index(gate)  # gate index in nodes array
+            
+            distance_gate_src = self.distances[gate_idx,0]  # source index = 0
+            min_distance = distance_gate_src
+            
+            for node_idx,node in enumerate(self.nodes):
+                # skip node if:
+                    # source
+                    # is gate in question
+                    # already connected to gate
+                    # part of same subtree as gate
+                    # path has been checked
                 
-
+                if type(node) == Source:
+                    continue
+                
+                elif (gate_idx != node_idx
+                    and gate.subtree != node.subtree
+                    and self.path_checked[gate_idx, node_idx] == False
+                    and self.connections[gate_idx, node_idx] == 0):
+                
+                    # if distance gate-node lowest so far, update min distance
+                    if self.distances[gate_idx,node_idx] < min_distance:
+                        
+                        min_distance = self.distances[gate_idx,node_idx]
+                        best_node_idx = node_idx
+                        
+            # trade-off = distance(gate,src) - distance(gate,node)
+            tradeoff = distance_gate_src - min_distance
+            
+            if tradeoff > best_tradeoff:
+                best_tradeoff = tradeoff
+                best_gate_idx = gate_idx
+                
+                print("\nnew tradeoff:",tradeoff)
+                print("gate:", best_gate_idx)
+                print("node:", best_node_idx)
+        
+        print("\nFINAL RESULTS")
+        print("gate: ", best_gate_idx)
+        print("node: ", best_node_idx)
+        print("tradeoff: ", best_tradeoff)
+        
+        return best_gate_idx, best_node_idx
+        
+    #-------HIGH LEVEL METHODS------------------------------------------------#
+    
     def setup(self):
         """
-        Initialisation phase for CMST
+        Initialisation phase for CMST.
+        Step 1: assign each node to own subtree
+        Step 2: create distance, connection, checked paths matrices
+        Step 3: test voltage constraints of initial connections
+                > calculate resistance of connections
         
         """
         # all nodes part of own subtree initially
         self._init_subtrees()
         
+        # create & populate connection/distance/checked path matrices
         self._init_matrices()
         
+        # calculate resistance of line between nodes and source
+        # and test voltage constraints
         self._init_constraints()
-        
-        pass
     
     def cmst(self):
         
-        pass
+        further_improvements = True
+        
+        while further_improvements == True:
+            
+            # find candidate pair
+            
+            # connect pair & test constraints (I & V)
+            
+            # if constraint broken:
+                # undo connection & mark path as checked
+            
+            # if constraint satisfied:
+                # keep connection & mark path as checked
+        
+            pass
     
     def output(self):
         
