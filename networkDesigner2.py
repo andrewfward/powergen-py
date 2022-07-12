@@ -34,7 +34,7 @@ class Node:
         
         self.node_id = str(node_id)
         
-        self.Pdem = power_demand
+        self.Pdem = np.array(power_demand, dtype="float64")
         
         self.cost = 0
         
@@ -48,13 +48,15 @@ class Node:
         
         self.line_res = 0  # resistance in line between node and its parent
         
-        #-------CURRENT/VOLTAGE TRACKERS--------------------------------------#
+        #-------CURRENT/VOLTAGE ARRAYS----------------------------------------#
         
-        self.I = [0]*len(power_demand)  # current drawn by node at each hour
+        placeholder_array = np.zeros(len(self.Pdem))
         
-        self.I_line = [0]*len(power_demand)  # current in line at each hour
+        self.I = placeholder_array  # current drawn by node at each hour
         
-        self.V = [0]*len(power_demand)  # voltage across node at each time step
+        self.I_line = placeholder_array  # current in line at each hour
+        
+        self.V = placeholder_array  # voltage across node at each time step
         
         #-------CMST TRACKERS-------------------------------------------------#
         
@@ -72,7 +74,24 @@ class Node:
             return True
         else:
             return False
+    
+    def has_children(self):
+        """
+        True if node has children. False otherwise.
 
+        Returns
+        -------
+        bool
+            Status of children existing.
+
+        """
+        
+        if self.children != []:
+            return True
+        
+        else:
+            return False
+    
 
 class NetworkDesigner:
     
@@ -227,14 +246,12 @@ class NetworkDesigner:
                 self.calculate_res(node)
                 
                 # calculate current drawn by node    I(t) = Pdem(t) / Vnet [DC]
-                node.current = [(Pdem/self.Vnet) for Pdem in node.Pdem]
-                
-                # create an array from currents
-                currents = np.array(node.current)
+                node.I = node.Pdem / self.Vnet
+
                 # voltage drops is current * line resistance
-                voltage_drops = node.line_res * currents
+                voltage_drops = node.line_res * node.I
                 
-                if max(voltage_drops) > self.Vdrop_max:
+                if np.max(voltage_drops) > self.Vdrop_max:
                     node.csrt_sat = False
                 else:
                     node.csrt_sat = True
@@ -319,7 +336,6 @@ class NetworkDesigner:
         """
         
         self.prev_nodes = self.nodes.copy()
-        self.prev_path_checked = self.path_checked.copy()
         self.prev_connections = self.connections.copy()
         
     def _load_prev_state(self):
@@ -366,6 +382,87 @@ class NetworkDesigner:
         #       passing in gate as argument because it is now downstream. 
         self.calculate_res(gate)
     
+    def _reset_checks(self):
+        
+        for node in self.nodes:
+            node.I_checked = False
+            node.V_checked = False
+    
+    def _test_constraints(self,gate_idx):
+        
+        # 1 reset check variable of all nodes in network
+        # 2 test current
+        # 3 test voltage
+        
+        self._reset_checks()
+        
+        gate = self.nodes[gate_idx]  # get gate object
+            
+        # set active node as connecting gate
+        active_idx = gate_idx
+        active_node = gate
+        
+        constraint_broken = False
+        
+        # test CURRENT
+        while type(active_node) != Source and constraint_broken == False:
+            
+            # if active node has children:
+            #   > ignore children with checked current
+            #   > if child with unchecked current exists
+            #       > child becomes active node
+            
+            all_checked = False
+            
+            # if active node has children
+            if active_node.has_children() == True:
+                
+                # search for child with unchecked current
+                for num, child_idx in enumerate(active_node.children):
+                    child = self.nodes[child_idx]
+                    
+                    # child with unchecked current found, so stop searching
+                    if child.I_checked == False:
+                        active_idx = child_idx
+                        active_node = child
+                        break
+                    
+                    # all children have checked currents
+                    elif (num + 1) == len(active_node.children):
+                        all_checked = True
+                    
+                    else:
+                        continue
+            
+            # if active node childless or all children have checked currents
+            # we are at bottom of subtree
+            if active_node.has_children() == False or all_checked == True:
+                
+                # current in line = current in child line + current node draws
+                if active_node.has_children():
+                    
+                    I_line_children = 0
+                    for child_idx in active_node.children:
+                        I_line_children += self.nodes[child_idx].I_line
+                    
+                    active_node.I_line += active_node.I + I_line_children
+                
+                else:
+                    active_node.I_line += active_node.I
+                
+                # check if current in line above maximum allowable
+                if np.max(active_node.I_line) > self.Imax:
+                    constraint_broken = True
+                
+                # mark node as checked
+                active_node.I_checked = True
+                
+                # move upstream --> parent node becomes active node
+                active_idx = active_node.parent
+                active_node = self.nodes[active_idx]
+        
+        # test VOLTAGE
+    
     #-------HIGH LEVEL METHODS------------------------------------------------#
     
     def setup(self):
@@ -397,17 +494,18 @@ class NetworkDesigner:
         while further_improvements == True:
             
             # find candidate pair
-            best_gate, best_node = self._candidate_nodes()
+            best_gate_idx, best_node_idx = self._candidate_nodes()
             
             # save current state before making connection
             self._save_state()
             
-            further_improvements = False
-            
             # connect pair
-            # self._connect_nodes(best_gate_idx, best_node_idx)
+            self._connect_nodes(best_gate_idx, best_node_idx)
             
             # test constraints on new connection
+            self._test_constraints(best_gate_idx)
+            
+            # further_improvements = False
             
             # if constraint broken:
                 # undo connection & mark path as checked
