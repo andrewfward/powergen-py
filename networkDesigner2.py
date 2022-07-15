@@ -10,7 +10,7 @@
 
 import pandas as pd
 import numpy as np
-import sys
+import copy
 
 
 class Source:
@@ -283,7 +283,7 @@ class NetworkDesigner:
             gate_idx = self.nodes.index(gate)  # gate index in nodes array
             
             distance_gate_src = self.distances[gate_idx,0]  # source index = 0
-            min_distance = distance_gate_src
+            min_distance = distance_gate_src  # min distance initially SRC-gate
             
             for node_idx,node in enumerate(self.nodes):
                 # skip node if:
@@ -306,22 +306,25 @@ class NetworkDesigner:
                         
                         min_distance = self.distances[gate_idx,node_idx]
                         best_node_idx = node_idx
-                        
+                
+                else:
+                    continue
+                
             # trade-off = distance(gate,src) - distance(gate,node)
             tradeoff = distance_gate_src - min_distance
             
-            if tradeoff > best_tradeoff:
+            if tradeoff > best_tradeoff and tradeoff > 0:
                 best_tradeoff = tradeoff
                 best_gate_idx = gate_idx
                 
-                print("\nnew tradeoff:",tradeoff)
-                print("gate:", best_gate_idx)
-                print("node:", best_node_idx)
+                # print("\nnew tradeoff:",tradeoff)
+                # print("gate:", best_gate_idx)
+                # print("node:", best_node_idx)
         
-        print("\nFINAL RESULTS")
-        print("gate: ", best_gate_idx)
-        print("node: ", best_node_idx)
-        print("tradeoff: ", best_tradeoff)
+        # print("\nFINAL RESULTS")
+        # print("gate: ", best_gate_idx)
+        # print("node: ", best_node_idx)
+        # print("tradeoff: ", best_tradeoff)
         
         return best_gate_idx, best_node_idx
     
@@ -335,12 +338,13 @@ class NetworkDesigner:
 
         """
         
-        self.prev_nodes = self.nodes.copy()
+        self.prev_nodes = copy.deepcopy(self.nodes)
         self.prev_connections = self.connections.copy()
         
     def _load_prev_state(self):
         
-        pass
+        self.nodes = self.prev_nodes
+        self.connections = self.prev_connections
     
     def _connect_nodes(self, gate_idx, node_idx):
         """
@@ -396,11 +400,11 @@ class NetworkDesigner:
         
         self._reset_checks()
         
-        gate = self.nodes[gate_idx]  # get gate object
+        gate_node = self.nodes[gate_idx]  # get gate object
             
         # set active node as connecting gate
         active_idx = gate_idx
-        active_node = gate
+        active_node = gate_node
         
         constraint_broken = False
         
@@ -462,7 +466,63 @@ class NetworkDesigner:
                 active_node = self.nodes[active_idx]
         
         # test VOLTAGE
-    
+        
+        # set active node as gate of subtree
+        active_idx = gate_node.subtree
+        active_node = self.nodes[active_idx]
+        
+        while type(active_node) != Source and constraint_broken == False:
+            
+            # if voltage not checked then calculate voltage
+            if active_node.V_checked == False:
+                # if active node is gate of subtree
+                if active_node.isgate() == True:
+                    active_node.V = (self.Vnet
+                                     - active_node.I_line 
+                                     * active_node.line_res)
+                    
+                # if active node not gate of subtree
+                else:
+                    parent_node = self.nodes[active_node.parent]
+                    active_node.V = (parent_node.V 
+                                     - active_node.I_line 
+                                     * active_node.line_res)
+                
+                active_node.V_checked = True
+                
+                # check constraint
+                if np.min(active_node.V) < (self.Vnet - self.Vdrop_max):
+                    constraint_broken = True
+            
+            elif active_node.V_checked == True:
+                
+                if active_node.has_children():
+                    
+                    for num, child_idx in enumerate(active_node.children):
+                        child = self.nodes[child_idx]
+                        
+                        # child with unchecked voltage found, so stop searching
+                        if child.V_checked == False:
+                            active_idx = child_idx
+                            active_node = child
+                            break
+                        
+                        # all children have checked voltages, move upstream
+                        elif (num + 1) == len(active_node.children):
+                            active_idx = active_node.parent
+                            active_node = self.nodes[active_idx]
+                
+                # active node is chidless, move upstream
+                elif active_node.has_children() == False:
+                    active_idx = active_node.parent
+                    active_node = self.nodes[active_idx]
+        
+        if constraint_broken:
+            return False
+        
+        else:
+            return True
+        
     #-------HIGH LEVEL METHODS------------------------------------------------#
     
     def setup(self):
@@ -484,14 +544,18 @@ class NetworkDesigner:
         # calculate resistance of line between nodes and source
         # and test voltage constraints
         self._init_constraints()
-    
+        
+        print("\nSETUP DONE!")
+        
     def cmst(self):
         
         further_improvements = True
         self.old_best_gate = None
         self.old_best_node = None
         
-        while further_improvements == True:
+        loop = 0
+        
+        while further_improvements == True: #and loop < 4:
             
             # find candidate pair
             best_gate_idx, best_node_idx = self._candidate_nodes()
@@ -503,17 +567,20 @@ class NetworkDesigner:
             self._connect_nodes(best_gate_idx, best_node_idx)
             
             # test constraints on new connection
-            self._test_constraints(best_gate_idx)
+            # if constraint broken
+            if self._test_constraints(best_gate_idx) == False:
+                
+                # reset the connection
+                self._load_prev_state()
             
-            # further_improvements = False
+            # save best connections
+            self.old_best_gate = best_gate_idx
+            self.old_best_node = best_node_idx
             
-            # if constraint broken:
-                # undo connection & mark path as checked
+            further_improvements = False
             
-            # if constraint satisfied:
-                # keep connection & mark path as checked
-        
-            pass
+            # loop += 1
+            # print("\nloop " + str(loop))
     
     def output(self):
         
@@ -522,3 +589,10 @@ class NetworkDesigner:
     def build_network(self):
         
         pass
+    
+    
+    
+    
+    
+    
+#-------TEST LOGIC------------------------------------------------------------#
