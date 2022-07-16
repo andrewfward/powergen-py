@@ -157,11 +157,11 @@ class NetworkDesigner:
 
         """
         
-        for index, node in enumerate(self.nodes):
+        for idx, node in enumerate(self.nodes):
             if type(node) == Source:
                 continue
             else:
-                node.subtree = index
+                node.subtree = idx
     
     def _init_matrices(self):
         """
@@ -238,11 +238,11 @@ class NetworkDesigner:
         
         """
 
-        for node in self.nodes:
+        for node_idx, node in enumerate(self.nodes):
             
             if type(node) == Node:
                 
-                # calculate resistance between each node and respective parent
+                # calculate resistance between each node and parent (SRC)
                 self.calculate_res(node)
                 
                 # calculate current drawn by node    I(t) = Pdem(t) / Vnet [DC]
@@ -255,7 +255,11 @@ class NetworkDesigner:
                     node.csrt_sat = False
                 else:
                     node.csrt_sat = True
-
+                
+                # update path between node and parent (SRC) as checked
+                self.path_checked[node_idx,node.parent] = True
+                self.path_checked[node.parent,node_idx] = True
+                
             else:
                 pass
     
@@ -267,7 +271,7 @@ class NetworkDesigner:
         best_gate_idx = None
         best_node_idx = None
         
-        for gate in self.nodes:
+        for gate_idx, gate in enumerate(self.nodes):
             
             if type(gate) == Source:
                 continue
@@ -275,9 +279,9 @@ class NetworkDesigner:
             if gate.isgate() == False:
                 continue
             
-            gate_idx = self.nodes.index(gate)
-            
-            min_distance = self.distances[gate_idx,0]  # distance gate - SRC
+            # gate_idx = self.nodes.index(gate)
+            else:
+                min_distance = self.distances[gate_idx,0]  # distance gate-SRC
             
             for node_idx, node in enumerate(self.nodes):
                 
@@ -309,77 +313,10 @@ class NetworkDesigner:
                     best_gate_idx = temp_best_gate_idx
                     best_node_idx = temp_best_node_idx
         
-        if type(best_gate_idx) == None or type(best_node_idx) == None:
+        if best_gate_idx == None or best_node_idx == None:
             return False, False
         else:
             return best_gate_idx, best_node_idx
-    
-    # def _candidate_nodes(self):
-    #     """
-    #     Finds gate-node paid with best trade-off value for new connection.
-
-    #     Returns
-    #     -------
-    #     best_gate_idx : int
-    #         Index of gate with best trade-off value.
-    #     best_node_idx : int
-    #         Index of best node to join to.
-
-    #     """
-        
-    #     # filter out gate nodes (nodes connected to source)
-    #     gates = filter(lambda node: node.isgate() == True, self.nodes)
-        
-    #     best_tradeoff = 0        
-    #     for gate in gates:
-            
-    #         gate_idx = self.nodes.index(gate)  # gate index in nodes array
-            
-    #         distance_gate_src = self.distances[gate_idx,0]  # source index = 0
-    #         min_distance = distance_gate_src  # min distance initially SRC-gate
-            
-    #         for node_idx,node in enumerate(self.nodes):
-    #             # skip node if:
-    #                 # source
-    #                 # is gate in question
-    #                 # already connected to gate
-    #                 # part of same subtree as gate
-    #                 # path has been checked
-                
-    #             if type(node) == Source:
-    #                 continue
-                
-    #             elif (gate_idx != node_idx
-    #                 and gate.subtree != node.subtree
-    #                 and self.path_checked[gate_idx, node_idx] == False
-    #                 and self.connections[gate_idx, node_idx] == 0):
-                
-    #                 # if distance gate-node lowest so far, update min distance
-    #                 if self.distances[gate_idx,node_idx] < min_distance:
-                        
-    #                     min_distance = self.distances[gate_idx,node_idx]
-    #                     best_node_idx = node_idx
-                
-    #             else:
-    #                 continue
-                
-    #         # trade-off = distance(gate,src) - distance(gate,node)
-    #         tradeoff = distance_gate_src - min_distance
-            
-    #         if tradeoff > best_tradeoff and tradeoff > 0:
-    #             best_tradeoff = tradeoff
-    #             best_gate_idx = gate_idx
-                
-    #             # print("\nnew tradeoff:",tradeoff)
-    #             # print("gate:", best_gate_idx)
-    #             # print("node:", best_node_idx)
-        
-    #     # print("\nFINAL RESULTS")
-    #     # print("gate: ", best_gate_idx)
-    #     # print("node: ", best_node_idx)
-    #     # print("tradeoff: ", best_tradeoff)
-        
-    #     return best_gate_idx, best_node_idx
     
     def _save_state(self):
         """
@@ -392,7 +329,7 @@ class NetworkDesigner:
         """
         
         self.prev_nodes = copy.deepcopy(self.nodes)
-        self.prev_connections = self.connections.copy()
+        self.prev_connections = copy.deepcopy(self.connections)
         
     def _load_prev_state(self):
         
@@ -429,11 +366,15 @@ class NetworkDesigner:
         self.connections[gate_idx,node_idx] = distance
         self.connections[node_idx,gate_idx] = distance
         
+        # disconnect gate from source in adj matrix
+        self.connections[gate_idx,0] = 0
+        self.connections[0,gate_idx] = 0
+        
         # update subtree for all nodes in gate subtree
         for subnode in self.nodes:
             if type(subnode) == Source:
                 continue
-            if subnode == node or subnode == gate:
+            elif subnode == node or subnode == gate:
                 continue
             elif subnode.subtree == gate.subtree:
                 
@@ -481,61 +422,63 @@ class NetworkDesigner:
         constraint_broken = False
         
         # test CURRENT
-        while type(active_node) != Source and constraint_broken == False:
+        # while type(active_node) != Source and constraint_broken == False:
             
-            # if active node has children:
-            #   > ignore children with checked current
-            #   > if child with unchecked current exists
-            #       > child becomes active node
+        #     # if active node has children:
+        #     #   > ignore children with checked current
+        #     #   > if child with unchecked current exists
+        #     #       > child becomes active node
             
-            all_checked = False
+        #     all_checked = False
             
-            # if active node has children
-            if active_node.has_children() == True:
+        #     # if active node has children
+        #     if active_node.has_children() == True:
                 
-                # search for child with unchecked current
-                for num, child_idx in enumerate(active_node.children):
-                    child = self.nodes[child_idx]
+        #         # search for child with unchecked current
+        #         for num, child_idx in enumerate(active_node.children):
+        #             child = self.nodes[child_idx]
                     
-                    # child with unchecked current found, so stop searching
-                    if child.I_checked == False:
-                        active_idx = child_idx
-                        active_node = child
-                        break
+        #             # child with unchecked current found, so stop searching
+        #             if child.I_checked == False:
+        #                 active_idx = child_idx
+        #                 active_node = child
+        #                 break
                     
-                    # all children have checked currents
-                    elif (num + 1) == len(active_node.children):
-                        all_checked = True
+        #             # all children have checked currents
+        #             elif (num + 1) == len(active_node.children):
+        #                 all_checked = True
                     
-                    else:
-                        continue
+        #             else:
+        #                 continue
             
-            # if active node childless or all children have checked currents
-            # we are at bottom of subtree
-            if active_node.has_children() == False or all_checked == True:
+        #     # if active node childless or all children have checked currents
+        #     # we are at bottom of subtree
+        #     if active_node.has_children() == False or all_checked == True:
                 
-                # current in line = current in child line + current node draws
-                if active_node.has_children():
+        #         # current in line = current in child line + current node draws
+        #         if active_node.has_children():
                     
-                    I_line_children = 0
-                    for child_idx in active_node.children:
-                        I_line_children += self.nodes[child_idx].I_line
+        #             I_line_children = 0
+        #             for child_idx in active_node.children:
+        #                 I_line_children += self.nodes[child_idx].I_line
                     
-                    active_node.I_line += active_node.I + I_line_children
+        #             active_node.I_line += active_node.I + I_line_children
                 
-                else:
-                    active_node.I_line += active_node.I
+        #         else:
+        #             active_node.I_line += active_node.I
                 
-                # check if current in line above maximum allowable
-                if np.max(active_node.I_line) > self.Imax:
-                    constraint_broken = True
+        #         # check if current in line above maximum allowable
+        #         if np.max(active_node.I_line) > self.Imax:
+        #             constraint_broken = True
+                    
+        #             print("failed current check")
                 
-                # mark node as checked
-                active_node.I_checked = True
+        #         # mark node as checked
+        #         active_node.I_checked = True
                 
-                # move upstream --> parent node becomes active node
-                active_idx = active_node.parent
-                active_node = self.nodes[active_idx]
+        #         # move upstream --> parent node becomes active node
+        #         active_idx = active_node.parent
+        #         active_node = self.nodes[active_idx]
         
         # test VOLTAGE
         
@@ -567,6 +510,8 @@ class NetworkDesigner:
                 # check constraint
                 if np.min(active_node.V) < (self.Vnet - self.Vdrop_max):
                     constraint_broken = True
+                    
+                    print("voltage check failed")
             
             elif active_node.V_checked == True:
                 
@@ -636,6 +581,10 @@ class NetworkDesigner:
         
         while further_improvements == True: #and loop < 4:
             
+            loop += 1
+            print("-------------------------------")
+            print("\nloop " + str(loop))
+            
             print("\nlooking for candidates")
             
             # find candidate pair
@@ -674,9 +623,6 @@ class NetworkDesigner:
             self.old_best_node = best_node_idx
             
             # further_improvements = False
-            
-            loop += 1
-            print("\nloop " + str(loop))
     
     def output(self):
         
