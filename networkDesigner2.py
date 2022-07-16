@@ -262,71 +262,124 @@ class NetworkDesigner:
     #-------CMST METHODS------------------------------------------------------#
     
     def _candidate_nodes(self):
-        """
-        Finds gate-node paid with best trade-off value for new connection.
-
-        Returns
-        -------
-        best_gate_idx : int
-            Index of gate with best trade-off value.
-        best_node_idx : int
-            Index of best node to join to.
-
-        """
         
-        # filter out gate nodes (nodes connected to source)
-        gates = filter(lambda node: node.isgate() == True, self.nodes)
+        best_tradeoff = 0
+        best_gate_idx = None
+        best_node_idx = None
         
-        best_tradeoff = 0        
-        for gate in gates:
+        for gate in self.nodes:
             
-            gate_idx = self.nodes.index(gate)  # gate index in nodes array
+            if type(gate) == Source:
+                continue
             
-            distance_gate_src = self.distances[gate_idx,0]  # source index = 0
-            min_distance = distance_gate_src  # min distance initially SRC-gate
+            if gate.isgate() == False:
+                continue
             
-            for node_idx,node in enumerate(self.nodes):
-                # skip node if:
-                    # source
-                    # is gate in question
-                    # already connected to gate
-                    # part of same subtree as gate
-                    # path has been checked
+            gate_idx = self.nodes.index(gate)
+            
+            min_distance = self.distances[gate_idx,0]  # distance gate - SRC
+            
+            for node_idx, node in enumerate(self.nodes):
                 
                 if type(node) == Source:
                     continue
                 
-                elif (gate_idx != node_idx
-                    and gate.subtree != node.subtree
-                    and self.path_checked[gate_idx, node_idx] == False
-                    and self.connections[gate_idx, node_idx] == 0):
-                
-                    # if distance gate-node lowest so far, update min distance
-                    if self.distances[gate_idx,node_idx] < min_distance:
-                        
-                        min_distance = self.distances[gate_idx,node_idx]
-                        best_node_idx = node_idx
-                
-                else:
+                if (self.path_checked[node_idx, gate_idx] == True
+                    or self.path_checked[gate_idx,node_idx] == True
+                    or node.subtree == gate.subtree
+                    or node_idx in gate.children):
+                    
                     continue
                 
-            # trade-off = distance(gate,src) - distance(gate,node)
-            tradeoff = distance_gate_src - min_distance
-            
-            if tradeoff > best_tradeoff and tradeoff > 0:
-                best_tradeoff = tradeoff
-                best_gate_idx = gate_idx
+                elif self.distances[gate_idx,node_idx] == 0:
+                    continue
                 
-                # print("\nnew tradeoff:",tradeoff)
-                # print("gate:", best_gate_idx)
-                # print("node:", best_node_idx)
+                elif self.distances[gate_idx,node_idx] < min_distance:
+                    
+                    if self.connections[gate_idx,node_idx] == 0:
+                        min_distance = self.distances[gate_idx,node_idx]
+                        temp_best_node_idx = node_idx
+                        temp_best_gate_idx = gate_idx
+            
+            tradeoff = self.distances[gate_idx,0] - min_distance
+            
+            if tradeoff > 0:
+                if tradeoff > best_tradeoff:
+                    best_tradeoff = tradeoff
+                    best_gate_idx = temp_best_gate_idx
+                    best_node_idx = temp_best_node_idx
         
-        # print("\nFINAL RESULTS")
-        # print("gate: ", best_gate_idx)
-        # print("node: ", best_node_idx)
-        # print("tradeoff: ", best_tradeoff)
+        if type(best_gate_idx) == None or type(best_node_idx) == None:
+            return False, False
+        else:
+            return best_gate_idx, best_node_idx
+    
+    # def _candidate_nodes(self):
+    #     """
+    #     Finds gate-node paid with best trade-off value for new connection.
+
+    #     Returns
+    #     -------
+    #     best_gate_idx : int
+    #         Index of gate with best trade-off value.
+    #     best_node_idx : int
+    #         Index of best node to join to.
+
+    #     """
         
-        return best_gate_idx, best_node_idx
+    #     # filter out gate nodes (nodes connected to source)
+    #     gates = filter(lambda node: node.isgate() == True, self.nodes)
+        
+    #     best_tradeoff = 0        
+    #     for gate in gates:
+            
+    #         gate_idx = self.nodes.index(gate)  # gate index in nodes array
+            
+    #         distance_gate_src = self.distances[gate_idx,0]  # source index = 0
+    #         min_distance = distance_gate_src  # min distance initially SRC-gate
+            
+    #         for node_idx,node in enumerate(self.nodes):
+    #             # skip node if:
+    #                 # source
+    #                 # is gate in question
+    #                 # already connected to gate
+    #                 # part of same subtree as gate
+    #                 # path has been checked
+                
+    #             if type(node) == Source:
+    #                 continue
+                
+    #             elif (gate_idx != node_idx
+    #                 and gate.subtree != node.subtree
+    #                 and self.path_checked[gate_idx, node_idx] == False
+    #                 and self.connections[gate_idx, node_idx] == 0):
+                
+    #                 # if distance gate-node lowest so far, update min distance
+    #                 if self.distances[gate_idx,node_idx] < min_distance:
+                        
+    #                     min_distance = self.distances[gate_idx,node_idx]
+    #                     best_node_idx = node_idx
+                
+    #             else:
+    #                 continue
+                
+    #         # trade-off = distance(gate,src) - distance(gate,node)
+    #         tradeoff = distance_gate_src - min_distance
+            
+    #         if tradeoff > best_tradeoff and tradeoff > 0:
+    #             best_tradeoff = tradeoff
+    #             best_gate_idx = gate_idx
+                
+    #             # print("\nnew tradeoff:",tradeoff)
+    #             # print("gate:", best_gate_idx)
+    #             # print("node:", best_node_idx)
+        
+    #     # print("\nFINAL RESULTS")
+    #     # print("gate: ", best_gate_idx)
+    #     # print("node: ", best_node_idx)
+    #     # print("tradeoff: ", best_tradeoff)
+        
+    #     return best_gate_idx, best_node_idx
     
     def _save_state(self):
         """
@@ -376,9 +429,26 @@ class NetworkDesigner:
         self.connections[gate_idx,node_idx] = distance
         self.connections[node_idx,gate_idx] = distance
         
-        # update gate's subtree and parent, node's child
+        # update subtree for all nodes in gate subtree
+        for subnode in self.nodes:
+            if type(subnode) == Source:
+                continue
+            if subnode == node or subnode == gate:
+                continue
+            elif subnode.subtree == gate.subtree:
+                
+                print("updated subtree of " + str(subnode.node_id))
+                print("old subtree: " + str(subnode.subtree))
+                print("new subtree: " + str(node.subtree))
+                
+                subnode.subtree = node.subtree
+            else:
+                continue
+        
+        # update gate's subtree and parent
         gate.parent = node_idx
         gate.subtree = node.subtree
+        
         node.children.append(gate_idx)  # mark gate as child of node
         
         # calculate line resistance of new connection
@@ -401,7 +471,9 @@ class NetworkDesigner:
         self._reset_checks()
         
         gate_node = self.nodes[gate_idx]  # get gate object
-            
+        
+        print("\nchecking current")
+        
         # set active node as connecting gate
         active_idx = gate_idx
         active_node = gate_node
@@ -467,6 +539,8 @@ class NetworkDesigner:
         
         # test VOLTAGE
         
+        print("\nchecking voltage")
+        
         # set active node as gate of subtree
         active_idx = gate_node.subtree
         active_node = self.nodes[active_idx]
@@ -521,8 +595,13 @@ class NetworkDesigner:
             return False
         
         else:
+            
+            print("\nCONNECTED:")
+            print("gate " + str(gate_idx))
+            print("node " + str(gate_node.parent))
+            
             return True
-        
+
     #-------HIGH LEVEL METHODS------------------------------------------------#
     
     def setup(self):
@@ -557,19 +636,36 @@ class NetworkDesigner:
         
         while further_improvements == True: #and loop < 4:
             
+            print("\nlooking for candidates")
+            
             # find candidate pair
             best_gate_idx, best_node_idx = self._candidate_nodes()
+            
+            if best_gate_idx == False and best_node_idx == False:
+                
+                print("\nNEW CONNECTION NOT FOUND")
+                break
+            
+            print("\nsaving state")
             
             # save current state before making connection
             self._save_state()
             
+            print("\nconnecting nodes")
+            print("ATTEMPTING")
+            print("gate: " + str(best_gate_idx))
+            print("node: " + str(best_node_idx))
+            
             # connect pair
             self._connect_nodes(best_gate_idx, best_node_idx)
+            
+            print("\ntesting constraints")
             
             # test constraints on new connection
             # if constraint broken
             if self._test_constraints(best_gate_idx) == False:
                 
+                print("\nfailed constraints check, resetting connection")
                 # reset the connection
                 self._load_prev_state()
             
@@ -577,10 +673,10 @@ class NetworkDesigner:
             self.old_best_gate = best_gate_idx
             self.old_best_node = best_node_idx
             
-            further_improvements = False
+            # further_improvements = False
             
-            # loop += 1
-            # print("\nloop " + str(loop))
+            loop += 1
+            print("\nloop " + str(loop))
     
     def output(self):
         
