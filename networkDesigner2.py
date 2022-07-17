@@ -400,8 +400,12 @@ class NetworkDesigner:
     def _reset_checks(self):
         
         for node in self.nodes:
-            node.I_checked = False
-            node.V_checked = False
+            if type(node) == Node:
+                node.I_checked = False
+                node.V_checked = False
+                
+                #!!!
+                node.I_line = np.zeros(len(node.Pdem))
     
     def _test_constraints(self,gate_idx):
         
@@ -422,63 +426,62 @@ class NetworkDesigner:
         constraint_broken = False
         
         # test CURRENT
-        # while type(active_node) != Source and constraint_broken == False:
+        while type(active_node) != Source and constraint_broken == False:
             
-        #     # if active node has children:
-        #     #   > ignore children with checked current
-        #     #   > if child with unchecked current exists
-        #     #       > child becomes active node
+            # if active node has children:
+            #   > ignore children with checked current
+            #   > if child with unchecked current exists
+            #       > child becomes active node
             
-        #     all_checked = False
+            all_checked = False
             
-        #     # if active node has children
-        #     if active_node.has_children() == True:
+            # if active node has children
+            if active_node.has_children() == True:
                 
-        #         # search for child with unchecked current
-        #         for num, child_idx in enumerate(active_node.children):
-        #             child = self.nodes[child_idx]
+                # search for child with unchecked current
+                for child_idx in active_node.children:
+                    child = self.nodes[child_idx]
                     
-        #             # child with unchecked current found, so stop searching
-        #             if child.I_checked == False:
-        #                 active_idx = child_idx
-        #                 active_node = child
-        #                 break
+                    # child with unchecked current found, so stop searching
+                    if child.I_checked == False:
+                        active_idx = child_idx
+                        active_node = child
+                        break
                     
-        #             # all children have checked currents
-        #             elif (num + 1) == len(active_node.children):
-        #                 all_checked = True
+                    elif child_idx == active_node.children[-1]:
+                        all_checked = True
                     
-        #             else:
-        #                 continue
+                    else:
+                        continue
             
-        #     # if active node childless or all children have checked currents
-        #     # we are at bottom of subtree
-        #     if active_node.has_children() == False or all_checked == True:
+            # if active node childless or all children have checked currents
+            # we are at bottom of subtree
+            if active_node.has_children() == False or all_checked == True:
                 
-        #         # current in line = current in child line + current node draws
-        #         if active_node.has_children():
+                # current in line = current in child line + current node draws
+                if active_node.has_children():
                     
-        #             I_line_children = 0
-        #             for child_idx in active_node.children:
-        #                 I_line_children += self.nodes[child_idx].I_line
+                    I_line_children = 0
+                    for child_idx in active_node.children:
+                        I_line_children += self.nodes[child_idx].I_line
                     
-        #             active_node.I_line += active_node.I + I_line_children
+                    active_node.I_line += active_node.I + I_line_children
                 
-        #         else:
-        #             active_node.I_line += active_node.I
+                else:
+                    active_node.I_line += active_node.I
                 
-        #         # check if current in line above maximum allowable
-        #         if np.max(active_node.I_line) > self.Imax:
-        #             constraint_broken = True
+                # check if current in line above maximum allowable
+                if (np.max(active_node.I_line) > self.Imax):
+                    constraint_broken = True
                     
-        #             print("failed current check")
+                    print("failed current check")
                 
-        #         # mark node as checked
-        #         active_node.I_checked = True
+                # mark node as checked
+                active_node.I_checked = True
                 
-        #         # move upstream --> parent node becomes active node
-        #         active_idx = active_node.parent
-        #         active_node = self.nodes[active_idx]
+                # move upstream --> parent node becomes active node
+                active_idx = active_node.parent
+                active_node = self.nodes[active_idx]
         
         # test VOLTAGE
         
@@ -618,11 +621,9 @@ class NetworkDesigner:
                 # reset the connection
                 self._load_prev_state()
             
-            # save best connections
-            self.old_best_gate = best_gate_idx
-            self.old_best_node = best_node_idx
-            
-            # further_improvements = False
+            # # save best connections
+            # self.old_best_gate = best_gate_idx
+            # self.old_best_node = best_node_idx
     
     def output(self):
         
