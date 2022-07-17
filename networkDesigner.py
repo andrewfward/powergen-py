@@ -95,9 +95,9 @@ class NetworkDesigner:
         
         self.Vnet = network_voltage
         
-        # attributes for CMST
-        self.old_best_trade = None
-        self.old_best_join = None
+        # # attributes for CMST
+        # self.old_best_trade = None
+        # self.old_best_join = None
     
     def import_customers(self, scale=1):
         
@@ -153,6 +153,7 @@ class NetworkDesigner:
         # populate distance matrix with distances
         # and connect all nodes to source
         for index1,node1 in enumerate(self.nodes):
+            
             for index2,node2 in enumerate(self.nodes):
                 x1 = node1.loc[0]
                 y1 = node1.loc[1]
