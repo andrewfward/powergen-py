@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 
     Network Designer for "Energy 4 Development" VIP
