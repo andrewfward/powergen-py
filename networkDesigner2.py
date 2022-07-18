@@ -11,7 +11,8 @@
 import pandas as pd
 import numpy as np
 import copy
-
+import matplotlib.pyplot as plt
+import networkx as nx
 
 class Source:
     
@@ -307,16 +308,15 @@ class NetworkDesigner:
             
             tradeoff = self.distances[gate_idx,0] - min_distance
             
-            if tradeoff > 0:
-                if tradeoff > best_tradeoff:
-                    best_tradeoff = tradeoff
-                    best_gate_idx = temp_best_gate_idx
-                    best_node_idx = temp_best_node_idx
+            if tradeoff > 0 and tradeoff > best_tradeoff:
+                best_tradeoff = tradeoff
+                best_gate_idx = temp_best_gate_idx
+                best_node_idx = temp_best_node_idx
         
-        if best_gate_idx == None or best_node_idx == None:
+        if best_gate_idx == None or best_node_idx == None:  # no new candidates
             return False, False
         else:
-            return best_gate_idx, best_node_idx
+            return best_gate_idx, best_node_idx  # new candidates found
     
     def _save_state(self):
         """
@@ -404,29 +404,18 @@ class NetworkDesigner:
                 node.I_checked = False
                 node.V_checked = False
                 
-                #!!!
                 node.I_line = np.zeros(len(node.Pdem))
     
-    def _test_constraints(self,gate_idx):
+    def _test_current(self,gate_idx):
         
-        # 1 reset check variable of all nodes in network
-        # 2 test current
-        # 3 test voltage
-        
-        self._reset_checks()
-        
-        gate_node = self.nodes[gate_idx]  # get gate object
-        
-        print("\nchecking current")
-        
-        # set active node as connecting gate
         active_idx = gate_idx
-        active_node = gate_node
+        active_node = self.nodes[gate_idx]
         
         constraint_broken = False
         
-        # test CURRENT
         while type(active_node) != Source and constraint_broken == False:
+            
+            print(active_idx)
             
             # if active node has children:
             #   > ignore children with checked current
@@ -483,15 +472,21 @@ class NetworkDesigner:
                 active_idx = active_node.parent
                 active_node = self.nodes[active_idx]
         
-        # test VOLTAGE
+        if constraint_broken:
+            return False
+        else:
+            return True
+    
+    def _test_voltage(self,gate_idx):
         
-        print("\nchecking voltage")
-        
-        # set active node as gate of subtree
-        active_idx = gate_node.subtree
+        active_idx = self.nodes[gate_idx].subtree
         active_node = self.nodes[active_idx]
         
+        constraint_broken = False
+        
         while type(active_node) != Source and constraint_broken == False:
+            
+            print(active_idx)
             
             # if voltage not checked then calculate voltage
             if active_node.V_checked == False:
@@ -541,15 +536,37 @@ class NetworkDesigner:
         
         if constraint_broken:
             return False
-        
         else:
-            
-            print("\nCONNECTED:")
-            print("gate " + str(gate_idx))
-            print("node " + str(gate_node.parent))
-            
             return True
-
+    
+    def _test_constraints(self,gate_idx):
+        
+        self._reset_checks()
+        
+        print("testing current")
+        I_test = self._test_current(gate_idx)
+    
+        print("testing voltage")
+        V_test = self._test_voltage(gate_idx)
+        
+        gate_node = self.nodes[gate_idx]
+        
+        if I_test == False or V_test == False:
+            gate_node.csrt_sat = False
+            return False
+        else:
+            gate_node.csrt_sat = True
+            return True
+        
+    def _disconnect_failed(self):
+        
+        self.final_connect = self.connections.copy()
+        
+        for node_idx, node in enumerate(self.nodes):
+            if type(node) != Source and node.csrt_sat == False:
+                self.final_connect[node_idx,:] = 0
+                self.final_connect[:,node_idx] = 0
+            
     #-------HIGH LEVEL METHODS------------------------------------------------#
     
     def setup(self):
@@ -624,18 +641,83 @@ class NetworkDesigner:
             # # save best connections
             # self.old_best_gate = best_gate_idx
             # self.old_best_node = best_node_idx
-    
-    def output(self):
         
+    def calc_cost(self):
+        self.total_length = np.sum(self.connections) / 2
+        self.total_cost = self.total_length * self.cost_meter
+        
+        print("\ntotal length: " + str(round(self.total_length,2)) + " m")
+        print("\ntotal cost: £" + str(round(self.total_cost,2)))
         pass
     
     def build_network(self):
         
-        pass
+        self.setup()
+        
+        self.cmst()
+        
+        self._disconnect_failed()
+        
+        self.calc_cost()
     
+    def network_Pdem(self):
+        
+        net_Pdem = sum([node.Pdem for node in self.nodes 
+                        if type(node) == Node and node.csrt_sat])
+        
+        net_Pdem = np.tile(net_Pdem, 365)
+        
+        return net_Pdem
     
-    
-    
-    
-    
-#-------TEST LOGIC------------------------------------------------------------#
+    def draw_graph(self, save=False):
+        
+        x = [node.loc[0] for node in self.nodes]
+        y = [node.loc[1] for node in self.nodes]
+        
+        plt.figure(figsize=(10,10))
+        # plt.figure()
+        plt.scatter(x[0],y[0],c="orange")  # source
+        plt.scatter(x[1:],y[1:])  # nodes
+        for i in range(len(x)):
+            if i == 0:
+                # plt.annotate("SRC", (x[i], y[i]))
+                plt.text(x[i],y[i],"SRC",fontsize="small")
+            else:
+                # plt.annotate(str(i), (x[i], y[i]))
+                plt.text(x[i],y[i],str(i),fontsize="small")
+        plt.show
+        
+        if save == True:
+            plt.savefig("initial layout", dpi=300)
+        
+        plt.figure(figsize=(20,20))
+        # plt.figure()
+        G = nx.Graph()
+
+        edges_valid = np.transpose(self.final_connect.nonzero())
+        invalid_connect = self.connections - self.final_connect
+        edges_invalid = np.transpose(invalid_connect.nonzero())
+        pos = dict()
+        for node_idx,node in enumerate(self.nodes):
+            pos[node_idx] = node.loc
+        
+        G.add_edges_from(edges_valid)
+        G.add_edges_from(edges_invalid)
+        
+        color_map = []
+        for node_idx in G:
+            node = self.nodes[node_idx]
+            if type(node) == Source:
+                color_map.append("tab:orange")
+            elif node.csrt_sat:
+                color_map.append("tab:blue")
+            else:
+                color_map.append("tab:red")
+                
+        nx.draw_networkx_nodes(G, node_color=color_map, pos=pos)
+        nx.draw_networkx_edges(G, pos=pos, edgelist=edges_valid)
+        nx.draw_networkx_labels(G, pos=pos)
+        plt.show
+        
+        if save == True:
+            plt.savefig("final network", dpi=300)
