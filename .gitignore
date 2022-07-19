@@ -9,7 +9,7 @@
 __pycache__
 
 # ignore test code
-test.py
+test?.py
 
 # ignore png files
 *.png

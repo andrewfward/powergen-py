@@ -11,26 +11,57 @@ import numpy as np
 import pandas as pd
 import k_means_constrained as kms
 
-def import_nodes_from_csv(scale_factor=1):
+class Customer:
     
-    scale = scale_factor
+    def __init__(self,customer_id,location,power_demand):
+        
+        self.customer_id = customer_id
+        self.location = location
+        self.Pdem = power_demand
+        
+    def assign_label(self,label):
+        # assigns pole label to customer
+        
+        self.label = label
+
+
+class Pole:
     
-    # read CSV file
-    df = pd.read_csv("nodes.csv")
-    df = df.set_index("ID")
+    def __init__(self):
+        
+        pass
+
+class CustomerClustering:
     
-    nodes = []
+    def __init__(self, pole_max_customers, pole_min_customers):
+        
+        self.size_max = pole_max_customers
+        self.size_min = pole_min_customers
     
-    # create source and node objects from entries in CSV
-    source = True
-    for node_id,data in df.iteritems():
-        # first entry is source
-        if source:
-            source_location = [scale * int(data[0]), scale * int(data[1])]
-            nodes.append(Source(source_location))
-            source = False
-        # rest are nodes
-        else:
-            location = [scale * int(data[0]), scale * int(data[1])]
-            power_demand = data[2:].tolist()
-            nodes.append(Node(location, node_id, power_demand))
+    def customers_from_csv(self, file_name):
+        
+        # read CSV file
+        df = pd.read_csv(str(file_name))
+        df = df.set_index("ID")
+        
+        self.customers = []
+        
+        # retrieve customers from CSV file
+        source = True
+        for customer_id,data in df.iteritems():
+            # first entry is source
+            if source:
+                continue
+            # rest are nodes
+            else:
+                location = (data[0], data[1])
+                power_demand = data[2:].tolist()
+                self.customers.append(
+                    Customer(customer_id,location,power_demand)
+                    )
+                
+    def             
+                
+                
+                
+    
