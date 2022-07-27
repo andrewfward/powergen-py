@@ -59,10 +59,6 @@ class Cluster:
         self.customers = customers
         self.distances = self._dist_matrix()  # calculate distance matrix
         
-        # self.distances_valid = False
-        # self.voltages_valid = False
-        # self.num_cust_valid = False
-        
         self.valid = False
         
     def _dist_matrix(self):
@@ -105,10 +101,6 @@ class Cluster:
         
         for idx,customer in enumerate(self.customers):
             
-            # presume voltage constraint initially valid
-            # self.voltages_valid = True
-            
-            # Vdrop = Icustomer * Res/m * distance(customer,centroid)
             Vdrops = ((customer.Pdem/network_voltage) * res_per_meter
                       * self.distances[idx])
             
@@ -128,13 +120,13 @@ class Cluster:
     def test_max_connections(self,max_connections):
         
         if len(self.customers) > max_connections:
-            # self.num_cust_valid = False
+            
             self.valid = False
             
             print("\ncluster max connections constraint broken")
             
         else:
-            # self.num_cust_valid = True
+            
             print("\ncluster max connections valid")
             pass
 
