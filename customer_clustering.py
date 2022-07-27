@@ -17,13 +17,18 @@ import customer_cluster as cc
 
 class CustomerClustering:
     
-    def __init__(self, init_cluster, max_connections, network_voltage, pole_cost,
-                 resistance_per_km, current_rating, cost_per_km,
+    def __init__(self, init_cluster, max_connections, network_voltage,
+                 pole_cost, resistance_per_km, current_rating, cost_per_km,
                  max_voltage_drop=None, max_distance=None):
         
         # network parameters
         self.max_connections = max_connections
         self.network_voltage = network_voltage
+        if max_voltage_drop == None:
+            # if none specified, take as 6% of network voltage
+            self.max_votlage_drop = 0.06 * network_voltage
+        else:
+            self.max_voltage_drop = max_voltage_drop
         
         # pole parameters
         self.pole_cost = pole_cost
@@ -59,4 +64,5 @@ class CustomerClustering:
                    resistance_per_km, current_rating, cost_per_km,
                    max_voltage_drop=max_voltage_drop,
                    max_distance=max_distance)
-        
+    
+    
