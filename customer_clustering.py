@@ -17,9 +17,9 @@ import customer_cluster as cc
 
 class CustomerClustering:
     
-    def __init__(max_connections, network_voltage, pole_cost
+    def __init__(self, init_cluster, max_connections, network_voltage, pole_cost,
                  resistance_per_km, current_rating, cost_per_km,
-                 max_voltage_drop=None, max_distance = None):
+                 max_voltage_drop=None, max_distance=None):
         
         # network parameters
         self.max_connections = max_connections
@@ -33,6 +33,8 @@ class CustomerClustering:
         self.current_rating = current_rating
         self.cost_m = cost_per_km / 1000
         
+        # initialise clusters array
+        self.clusters = [init_cluster]
     
     @classmethod
     def import_from_csv(cls, filename, max_connections,
@@ -44,14 +46,17 @@ class CustomerClustering:
         df = pd.read_csv("nodes.csv")
         df = df.set_index("ID")
         
-        self.clusters = []
-        
-        # import customers
+        # import customers and create initial single cluster
         customers = []
         for customer_id,data in df.iteritems():
             position = (scale_factor*data[0], scale_factor*data[1])  # X 0, Y 1
             power_demand = data[2:]
             customers.append(cc.Customer(customer_id,position,power_demand))
         
-        # create initial single cluster
-        self.clusters.append(cc.InitCluster(customers))
+        init_cluster = cc.InitCluster(customers)
+        
+        return cls(init_cluster, max_connections, network_voltage, pole_cost,
+                   resistance_per_km, current_rating, cost_per_km,
+                   max_voltage_drop=max_voltage_drop,
+                   max_distance=max_distance)
+        
