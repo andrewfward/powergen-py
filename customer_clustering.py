@@ -87,9 +87,11 @@ class CustomerClustering:
                 if cluster.valid == True:  # keep valid clusters
                     new_clusters.append(cluster)
                 elif cluster.valid == False:
-                    # new_clusters += self._apply_kmeans(cluster)
-                    self._apply_kmeans(cluster)
-    
+                    new_clusters += self._apply_kmeans(cluster)
+                    # self._apply_kmeans(cluster)
+            
+            self.clusters = new_clusters
+            
     def _test_constraints(self):
         
         self.all_clusters_valid = True  # assume all clusters valid initially
@@ -111,5 +113,22 @@ class CustomerClustering:
     def _apply_kmeans(self,cluster):
         # split invalid cluster into two new clusters
         
-        self.pos = np.array([customer.position for customer in cluster.customers])
-        # print(pos)
+        pos = np.array([customer.position for customer in cluster.customers])
+        
+        kmeans = KMeans(n_clusters=2).fit(pos)  # apply kmeans to invalid
+        cluster_centers = kmeans.cluster_centers_
+        cust_labels = kmeans.labels_
+        
+        new_clusters = []
+        
+        for ce_label, center in enumerate(cluster_centers):
+            customers = []
+            for cu_idx, customer in enumerate(cluster.customers):
+                # if customer label = centroid label
+                if cust_labels[cu_idx] == ce_label:
+                    customers.append(customer)
+            
+            # create new cluster
+            new_clusters.append(cc.Cluster(center,customers))
+            
+        return new_clusters

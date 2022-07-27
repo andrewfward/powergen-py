@@ -107,12 +107,12 @@ class Cluster:
                 # self.voltage_valid = False
                 self.valid = False
                 
-                print("\ncustomer voltage constraint broken")
+                print("\ncustomer voltage constraint broken",idx)
                 
                 break
             else:
                 
-                print("\ncustomer voltage valid")
+                print("\ncustomer voltage valid",idx)
                 
                 pass
     
