@@ -25,7 +25,7 @@ class CustomerClustering:
         self.network_voltage = network_voltage
         if max_voltage_drop == None:
             # if none specified, take as 6% of network voltage
-            self.max_votlage_drop = 0.06 * network_voltage
+            self.max_voltage_drop = 0.06 * network_voltage
         else:
             self.max_voltage_drop = max_voltage_drop
         
@@ -115,7 +115,7 @@ class CustomerClustering:
         
         pos = np.array([customer.position for customer in cluster.customers])
         
-        kmeans = KMeans(n_clusters=2).fit(pos)  # apply kmeans to invalid
+        kmeans = KMeans(n_clusters=2,n_init=25).fit(pos)  # apply kmeans to invalid
         cluster_centers = kmeans.cluster_centers_
         cust_labels = kmeans.labels_
         
@@ -132,3 +132,6 @@ class CustomerClustering:
             new_clusters.append(cc.Cluster(center,customers))
             
         return new_clusters
+    
+    # def _merge_clusters(self, cluster_1, cluster_2):
+        # merge two clusters into new single cluster
