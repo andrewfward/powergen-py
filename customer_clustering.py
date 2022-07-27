@@ -22,7 +22,6 @@ class CustomerClustering:
                  max_voltage_drop=None, max_distance=None):
         
         # network parameters
-        self.max_connections = max_connections
         self.network_voltage = network_voltage
         if max_voltage_drop == None:
             # if none specified, take as 6% of network voltage
@@ -31,6 +30,8 @@ class CustomerClustering:
             self.max_voltage_drop = max_voltage_drop
         
         # pole parameters
+        self.max_distance = max_distance
+        self.max_connections = max_connections
         self.pole_cost = pole_cost
         
         # cable parameters
@@ -40,7 +41,9 @@ class CustomerClustering:
         
         # initialise clusters array
         self.clusters = [init_cluster]
-    
+        
+        self.all_clusters_valid = False
+        
     @classmethod
     def import_from_csv(cls, filename, max_connections,
                         network_voltage, pole_cost, resistance_per_km,
@@ -65,4 +68,48 @@ class CustomerClustering:
                    max_voltage_drop=max_voltage_drop,
                    max_distance=max_distance)
     
+    @classmethod
+    def import_from_OTHER(cls):
+        
+        # PLACEHOLDER
+        pass
     
+    def cluster(self):
+        
+        while self.all_clusters_valid == False:
+            
+            # test constraints on all clusters
+            self._test_constraints()  # updates value of all_clusters_valid
+            
+            # keep valid and apply kmeans (k=2) to invalid clusters
+            new_clusters = []
+            for cluster in self.clusters:
+                if cluster.valid == True:  # keep valid clusters
+                    new_clusters.append(cluster)
+                elif cluster.valid == False:
+                    # new_clusters += self._apply_kmeans(cluster)
+                    self._apply_kmeans(cluster)
+    
+    def _test_constraints(self):
+        
+        self.all_clusters_valid = True  # assume all clusters valid initially
+        
+        for cluster in self.clusters:
+            
+            cluster.valid = True  # assume cluster valid initially
+            
+            # test constraints - these methods update cluster.valid
+            if self.max_distance != None:  # if max distance specified
+                cluster.test_distances()
+            cluster.test_voltages(self.network_voltage,self.max_voltage_drop,
+                                  self.res_m)
+            cluster.test_max_connections(self.max_connections)
+            
+            if cluster.valid == False:
+                self.all_clusters_valid = False
+                
+    def _apply_kmeans(self,cluster):
+        # split invalid cluster into two new clusters
+        
+        self.pos = np.array([customer.position for customer in cluster.customers])
+        # print(pos)
