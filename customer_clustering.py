@@ -15,6 +15,7 @@ from sklearn.cluster import KMeans
 
 import customer_cluster as cc
 
+
 class CustomerClustering:
     
     def __init__(self, init_cluster, max_connections, network_voltage,
@@ -51,7 +52,7 @@ class CustomerClustering:
                         max_voltage_drop=None, max_distance=None):
         
         # read csv file as pandas dataframe
-        df = pd.read_csv("nodes.csv")
+        df = pd.read_csv(str(filename))
         df = df.set_index("ID")
         
         # import customers and create initial single cluster
@@ -79,7 +80,7 @@ class CustomerClustering:
         while self.all_clusters_valid == False:
             
             # test constraints on all clusters
-            self._test_constraints()  # updates value of all_clusters_valid
+            self._test_constraints_all()  # updates value of all_clusters_valid
             
             # keep valid and apply kmeans (k=2) to invalid clusters
             new_clusters = []
@@ -92,7 +93,7 @@ class CustomerClustering:
             
             self.clusters = new_clusters
             
-    def _test_constraints(self):
+    def _test_constraints_all(self):
         
         self.all_clusters_valid = True  # assume all clusters valid initially
         
@@ -115,10 +116,11 @@ class CustomerClustering:
         
         pos = np.array([customer.position for customer in cluster.customers])
         
-        kmeans = KMeans(n_clusters=2,n_init=25).fit(pos)  # apply kmeans to invalid
+        # apply kmeans to invalid clusters (k = 2)
+        kmeans = KMeans(n_clusters=2,n_init=25).fit(pos)
+        
         cluster_centers = kmeans.cluster_centers_
         cust_labels = kmeans.labels_
-        
         new_clusters = []
         
         for ce_label, center in enumerate(cluster_centers):
@@ -133,5 +135,107 @@ class CustomerClustering:
             
         return new_clusters
     
-    # def _merge_clusters(self, cluster_1, cluster_2):
-        # merge two clusters into new single cluster
+    def _merge_loop(self):
+        
+        # 1 distance matrix
+        # 2 loop
+        self._dist_matrix = self._init_dist_matrix()
+        
+        further_imp = True
+        while further_imp:
+            
+            # print(self._dist_matrix)
+            
+            # find indices of closest pair
+            idx_1, idx_2 = np.unravel_index(self._dist_matrix.argmin(),
+                                            self._dist_matrix.shape)
+            
+            cluster_1 = self.clusters[idx_1]
+            cluster_2 = self.clusters[idx_2]
+            customers = cluster_1.customers + cluster_2.customers
+            
+            new_cluster = cc.InitCluster(customers)
+            self._test_constraints(new_cluster)
+            
+            if new_cluster.valid == True:
+                # remove old clusters and add new one
+                self.clusters.remove(cluster_1)
+                self.clusters.remove(cluster_2)
+                self.clustere.append(new_cluster)
+                
+                # create new distance matrix
+                self._dist_matrix = self._init_dist_matrix()
+            
+            elif new_cluster.valid == False:
+                self._dist_matrix[idx_1,idx_2] = np.inf
+                self._dist_matrix[idx_2,idx_1] = np.inf
+            
+            if np.isinf(self._dist_matrix).all():
+                further_imp = False
+            
+    def _test_constraints(self,cluster):
+        
+        for cluster in self.clusters:
+            
+            cluster.valid = True  # assume cluster valid initially
+            
+            # test constraints - these methods update cluster.valid
+            if self.max_distance != None:  # if max distance specified
+                cluster.test_distances()
+            cluster.test_voltages(self.network_voltage,self.max_voltage_drop,
+                                  self.res_m)
+            cluster.test_max_connections(self.max_connections)
+    
+    def _init_dist_matrix(self):
+        # create distance matrix (distances between clusters)
+        # used for merging process
+        # pairs to ignore marked with inf
+        
+        size = (len(self.clusters),len(self.clusters))
+        dist_matrix = np.full(size, np.inf)  # all values initially NaN
+        for idx_1, cluster_1 in enumerate(self.clusters):
+            
+            print("\nchecking cluster",idx_1)
+            
+            # skip cluster if it already has maximum number of customers
+            if cluster_1.n_customers == self.max_connections:
+                
+                print("\nskipped cluster",idx_1)
+                
+                continue
+            
+            # position of first cluster
+            X_1 = cluster_1.position[0]
+            Y_1 = cluster_1.position[1]
+            
+            for idx_2, cluster_2 in enumerate(self.clusters):
+                
+                if idx_1 == idx_2:
+                    
+                    print("\nsame clusters:",idx_1,idx_2)
+                    
+                    continue
+                
+                elif (cluster_1.n_customers + cluster_2.n_customers) > self.max_connections:
+                    
+                    print("\nmax customers",idx_1,idx_2)
+                    
+                    continue
+                
+                # position of second cluster
+                X_2 = cluster_2.position[0]
+                Y_2 = cluster_2.position[1]
+                
+                # euclidian distance between nodes
+                dist = ((X_2 - X_1)**2 + (Y_2 - Y_1)**2)**(1/2)
+                
+                if self.max_distance != None and dist > self.max_distance:
+                    
+                    print("\ntoo distant",idx_1,idx_2)
+                    
+                    continue
+                
+                else:
+                    dist_matrix[idx_1,idx_2] = dist
+        
+        return dist_matrix
