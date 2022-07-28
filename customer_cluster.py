@@ -56,6 +56,7 @@ class Cluster:
         """
         self.position = tuple(position)
         self.customers = customers
+        self.n_customers = len(customers)
         self.distances = self._dist_matrix()  # calculate distance matrix
         
         self.valid = False
@@ -135,6 +136,7 @@ class InitCluster(Cluster):
     def __init__(self,customers):
         
         self.customers = customers
+        self.n_customers = len(customers)
         self._find_centroid()
         self.distances = self._dist_matrix()
         
