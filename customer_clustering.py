@@ -117,7 +117,8 @@ class CustomerClustering:
         pos = np.array([customer.position for customer in cluster.customers])
         
         # apply kmeans to invalid clusters (k = 2)
-        kmeans = KMeans(n_clusters=2,n_init=25).fit(pos)
+        # kmeans = KMeans(n_clusters=2,n_init=25).fit(pos)
+        kmeans = KMeans(n_clusters=2).fit(pos)
         
         cluster_centers = kmeans.cluster_centers_
         cust_labels = kmeans.labels_
