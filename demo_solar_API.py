@@ -2,6 +2,7 @@
 """
 Demo for Renewables.ninja API integration (with generation sizer PSO)
 """
+import random
 
 import PVOutput as pv
 import genSizer as gs
@@ -23,6 +24,9 @@ Cost & technical parameters
 
     
 """
+
+# RNG seed
+random.seed(420)
 
 # coordinates for Jiboro in The Gambia
 latitude = 13.17

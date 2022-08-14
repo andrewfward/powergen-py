@@ -20,12 +20,14 @@ FUTURE WORK
 
 """
 
-import random, os, math
-import pandas as pd
+import random
+import os
+import math
+# import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-random.seed(123)      # rng
+# random.seed(123)      # rng
 
 #-----FUNCTIONS--------------------------------------------------------------------------#
 
@@ -46,9 +48,6 @@ def excelFileName():
 class Particle:
     
     # technical trackers
-    Psol = [0]*8760
-    Pgen = [0]*8760
-    Ebatt = [0]*8761        # to avoid overshooting
     fuel_used = 0
     Edump = 0               # acts as inital value too
     
@@ -66,8 +65,12 @@ class Particle:
     
     autonomDays = 0
     
-    def __init__(self,name):
+    def __init__(self,name,array_len):
         self.name = name
+        
+        self.Psol = [0] * array_len
+        self.Pgen = [0] * array_len
+        self.Ebatt = [0] * (array_len + 1)       # to avoid overshooting
         
         # random x, y, z coordinates
         self.pos = [random.randint(0, 500), random.randint(0, 500), random.randint(0, 500)]
@@ -113,15 +116,20 @@ class GenSizer:
         
         # generate swarm
         self.swarm = []
+        array_len = len(power_demand)
         for i in range(self.swarm_size):
-            self.swarm.append(Particle("Particle " + str(i)))
+            name = "Particle " + str(i)
+            self.swarm.append(Particle(name, array_len))
         
         # retrieve power demand as list
         # !!! using automatic excel file detection, can change to manual
         # df = pd.read_excel(excelFileName(), header=0, index_col=0)
         # self.Pdem = df["Pdem"].values.tolist()
         # self.Pdem = self.Pdem[0:8760]
-        self.Pdem = power_demand[0:8760]
+        
+        #!!!
+        # self.Pdem = power_demand[0:8760]
+        self.Pdem = power_demand
         
         # retrieve single solar panel output power as list
         # self.Psol_unit = df["Psol"].values.tolist()
