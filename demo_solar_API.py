@@ -24,6 +24,17 @@ Cost & technical parameters
 
     
 """
+# parameters for generation sizer
+solCost = 150.98
+battCost = 301.71
+genCost = 320
+fuelCost = 0.32
+EbattMax_unit = 2040
+EbattMin_unit = 408
+Pgen_unit = 750
+fuelReq = 1
+timebreakerMax = 0
+autonomDaysMin = 2
 
 # RNG seed
 random.seed(420)
@@ -37,10 +48,13 @@ power_demand = [1000]*8760
 
 # retrieve estimated single PV panel output from RN
 capacity = 250
-output_pv_unit = pv.pv_output(latitude, longitude, capacity, year=2019, auto_dataset=True, auto_tilt=True)
+output_pv_unit = pv.pv_output(latitude, longitude, capacity, year=2019,
+                              auto_dataset=True, auto_tilt=True)
 
 # create generation sizer object with 50 particles
-g = gs.GenSizer(50, power_demand, output_pv_unit)
+g = gs.GenSizer(50, power_demand, output_pv_unit, solCost, battCost, genCost,
+                fuelCost, EbattMax_unit, EbattMin_unit, Pgen_unit, fuelReq,
+                timebreakerMax, autonomDaysMin)
 
 # optimise generation mix (and show animation)
 max_iterations = 300

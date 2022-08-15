@@ -21,27 +21,25 @@ FUTURE WORK
 """
 
 import random
-import os
+# import os
 import math
 # import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-# random.seed(123)      # rng
-
 #-----FUNCTIONS--------------------------------------------------------------------------#
 
 # !!! MIGHT NEED TO CHANGE
 # gets the data excel file name (assuming one excel file in folder)
-def excelFileName():
-    for folder, sub_folder, files in os.walk(os.getcwd()):
-        for f in files:
-            f_extension = os.path.splitext(f)[1]
-            if f_extension in [".xlsx",".xls"]:
-                return f
-                break
-            else:
-                continue
+# def excelFileName():
+#     for folder, sub_folder, files in os.walk(os.getcwd()):
+#         for f in files:
+#             f_extension = os.path.splitext(f)[1]
+#             if f_extension in [".xlsx",".xls"]:
+#                 return f
+#                 break
+#             else:
+#                 continue
 
 #-----CLASSES----------------------------------------------------------------------------#
 
@@ -96,23 +94,33 @@ class Particle:
         
     
 class GenSizer:
+    
+    def __init__(self, swarm_size, power_demand, psol_unit,
+                 sol_cost, batt_cost, gen_cost, fuel_cost,  # costs
+                 batt_Wh_max_unit, batt_Wh_min_unit,  # battery parameters
+                 gen_max_power_out, gen_fuel_req,  # generator parameters
+                 max_off_hours, min_autonomy_days):
+        
 
-    # !!! cost of components    --> IDEALLY FROM EXTERNAL INPUT (user config)
-    solCost = 150.98
-    battCost = 301.71
-    genCost = 320
-    fuelCost = 0.32
-    
-    # !!! technical parameters  --> IDEALLY FROM EXTERNAL INPUT (user config)
-    EbattMax_unit = 2040
-    EbattMin_unit = 408
-    Pgen_unit = 750
-    fuelReq = 1
-    timebreakerMax = 0
-    autonomDaysMin = 2
-    
-    def __init__(self, swarm_size, power_demand, psol_unit):      # psol_unit is list
         self.swarm_size = swarm_size
+        self.Pdem = power_demand
+        self.Psol_unit = psol_unit
+        
+        # component costs
+        self.solCost = sol_cost
+        self.battCost = batt_cost
+        self.genCost = gen_cost
+        self.fuelCost = fuel_cost
+        
+        # technical parameters
+        self.EbattMax_unit = batt_Wh_max_unit
+        self.EbattMin_unit = batt_Wh_min_unit
+        self.Pgen_unit = gen_max_power_out
+        self.fuelReq = gen_fuel_req
+        
+        # offline & days of autonomy
+        self.timebreakerMax = max_off_hours
+        self.autonomDaysMin = min_autonomy_days
         
         # generate swarm
         self.swarm = []
@@ -121,25 +129,13 @@ class GenSizer:
             name = "Particle " + str(i)
             self.swarm.append(Particle(name, array_len))
         
-        # retrieve power demand as list
-        # !!! using automatic excel file detection, can change to manual
-        # df = pd.read_excel(excelFileName(), header=0, index_col=0)
-        # self.Pdem = df["Pdem"].values.tolist()
-        # self.Pdem = self.Pdem[0:8760]
-        
-        #!!!
-        # self.Pdem = power_demand[0:8760]
         self.Pdem = power_demand
-        
-        # retrieve single solar panel output power as list
-        # self.Psol_unit = df["Psol"].values.tolist()
-        # self.Psol_unit = self.Psol_unit[0:8760]
         self.Psol_unit = psol_unit
         
         # naughty list
         self.invalid_particles = []
         
-    def test_constraints(self):
+    def _test_constraints(self):
         
         self.invalid_particles.clear()
         
@@ -169,8 +165,6 @@ class GenSizer:
             p.Ebatt[0] = EbattMax
             
             # avg power needed for 1 day
-            #!!!
-            # P1day = sum(self.Pdem) / (365)
             P1day = sum(self.Pdem[0:24])
             
             # check if configuration can sustain microgrid for set days
@@ -231,22 +225,22 @@ class GenSizer:
                             p.Edump += (p.Ebatt[t+1] - EbattMax)
                             p.Ebatt[t+1] = EbattMax
 
-    def delete_invalid(self):
+    def _delete_invalid(self):
         for p in self.invalid_particles:
             self.swarm.remove(p)
         
-    def update_pos_all(self):
+    def _update_pos_all(self):
         for p in self.swarm:
             p.updatePosition()
     
-    def reset_invalid(self):
+    def _reset_invalid(self):
         for p in self.swarm:
             if p in self.invalid_particles:
                 p.pos = p.prev_pos.copy()
                 p.vel = [0, 0, 0]
                 p.fuel_used = p.prev_fuel
     
-    def fitness_all(self):
+    def _fitness_all(self):
         # evaluate cost (obj function)
         for p in self.swarm:
             Ns = p.pos[0]
@@ -274,7 +268,7 @@ class GenSizer:
             p.gbest_pos = gbest_pos#.copy()
             p.gbest_value = gbest
             
-    def update_vel_all(self, current_iter):
+    def _update_vel_all(self, current_iter):
         
         for p in self.swarm:
             
@@ -296,8 +290,8 @@ class GenSizer:
             # c1 = -3*(current_iter / self.max_iter) + 3.5
             # c2 = 3*(current_iter / self.max_iter) + 0.5
             
-            c1 = 2.05
-            c2 = 2.05
+            c1 = 2.05  # particle's self confidence
+            c2 = 2.05  # particle's conformity
             r1 = random.random()
             r2 = random.random()
             
@@ -308,7 +302,7 @@ class GenSizer:
             p.vel[1] = math.floor(w*p.vel[1] + c1*r1*(pbest[1]-p.pos[1]) + c2*r2*(gbest[1]-p.pos[1]))
             p.vel[2] = math.floor(w*p.vel[2] + c1*r1*(pbest[2]-p.pos[2]) + c2*r2*(gbest[2]-p.pos[2]))
     
-    def check_converge(self):
+    def _check_converge(self):
         # !!! NEEDS IMPROVEMENT
 
         positions = [particle.pos for particle in self.swarm]
@@ -326,7 +320,7 @@ class GenSizer:
         del velocities
         del positions
         
-    def animate(self,iteration_number):
+    def _animate(self,iteration_number):
         self.fig = plt.figure()
         ax = self.fig.add_subplot(projection = "3d")
         x, y, z = [], [], []
@@ -336,9 +330,9 @@ class GenSizer:
             z.append(p.pos[2])
         ax.scatter(x,y,z, marker="o", c=random.sample([x for x in range(self.swarm_size)],len(x)), cmap="Set2")
         
-        ax.set_xlabel('Solar Panels')
-        ax.set_ylabel('Batteries')
-        ax.set_zlabel('Generators')
+        ax.set_xlabel("Solar Panels")
+        ax.set_ylabel("Batteries")
+        ax.set_zlabel("Generators")
         
         xloc = plt.MaxNLocator(3)
         ax.xaxis.set_major_locator(xloc)
@@ -355,8 +349,8 @@ class GenSizer:
         self.max_iter = max_iter
         
         # remove particles outside feasible region
-        self.test_constraints()
-        self.delete_invalid()
+        self._test_constraints()
+        self._delete_invalid()
         
         # PSO loop
         self.converged = False
@@ -377,15 +371,15 @@ class GenSizer:
                 print("\nGbest:",self.swarm[0].gbest_pos)
                 print("Gb cost:",self.swarm[0].gbest_value)
             
-            self.update_pos_all()
-            self.test_constraints()
-            self.reset_invalid()
-            self.fitness_all()
-            self.update_vel_all(i)   # current iter number passed for inertia adjustment
-            self.check_converge()
+            self._update_pos_all()
+            self._test_constraints()
+            self._reset_invalid()
+            self._fitness_all()
+            self._update_vel_all(i)  # iter number passed for inertia adjustment
+            self._check_converge()
             
             if animate == True: 
-                self.animate(i)
+                self._animate(i)
 
             
             i += 1
