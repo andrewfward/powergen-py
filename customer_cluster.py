@@ -59,6 +59,10 @@ class Cluster:
         self.n_customers = len(customers)
         self.distances = self._dist_matrix()  # calculate distance matrix
         
+        self.Pdem_total = 0
+        for customer in self.customers:
+            self.Pdem_total += customer.Pdem
+        
         self.valid = False
         
     def _dist_matrix(self):
@@ -82,6 +86,13 @@ class Cluster:
         
         # euclidian distance
         return ((X_c - X)**2 + (Y_c - Y)**2)**(1/2)
+    
+    # def update_Pdem(self):
+        
+    #     self.Pdem_total = 0
+        
+    #     for customer in self.customers:
+    #         self.Pdem_total += customer.Pdem
     
     def test_distances(self,max_distance):
         
@@ -139,8 +150,6 @@ class InitCluster(Cluster):
         self.n_customers = len(customers)
         self._find_centroid()
         self.distances = self._dist_matrix()
-        
-        # self.voltages_valid = False
         self.valid = False
         
     def _find_centroid(self):

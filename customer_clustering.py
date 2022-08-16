@@ -75,6 +75,10 @@ class CustomerClustering:
         # PLACEHOLDER
         pass
     
+    def get_clusters(self):
+        
+        return self.clusters
+    
     def cluster(self):
         
         while self.all_clusters_valid == False:
@@ -88,8 +92,8 @@ class CustomerClustering:
                 if cluster.valid == True:  # keep valid clusters
                     new_clusters.append(cluster)
                 elif cluster.valid == False:
+                    # apply kmean to invalid cluster and add new ones
                     new_clusters += self._apply_kmeans(cluster)
-                    # self._apply_kmeans(cluster)
             
             self.clusters = new_clusters
             
@@ -138,8 +142,6 @@ class CustomerClustering:
     
     def _merge_loop(self):
         
-        # 1 distance matrix
-        # 2 loop
         self._dist_matrix = self._init_dist_matrix()
         
         further_imp = True
