@@ -125,6 +125,35 @@ class NetworkDesigner:
         self.Imax = max_current
         self.cost_meter = cost_per_km / 1000
     
+    @classmethod
+    def import_from_csv(cls, filename, network_voltage, res_per_km, max_current,
+                        cost_per_km, scl=1, max_V_drop=None, V_reg=6):
+        
+        # read CSV file
+        df = pd.read_csv(str(filename))
+        df = df.set_index("ID")
+        
+        # create source and node objects from entries in CSV
+        node_locs = []
+        power_demands = []
+        node_ids = []
+        source = True
+        for node_id,data in df.iteritems():
+            # first entry is source
+            if source:
+                src_loc = [scl * int(data[0]), scl * int(data[1])]
+                source = False
+            # rest are nodes
+            else:
+                location = [scl * int(data[0]), scl * int(data[1])]
+                node_locs.append(location)
+                node_ids.append(node_id)
+                power_demands.append(data[2:].tolist())
+        
+        return cls(src_loc, node_locs, power_demands, network_voltage,
+                   res_per_km, max_current, cost_per_km, node_ids)
+        
+    
     # def __init__(self, network_voltage, max_V_drop=None):
         
     #     # base operating voltage of network
