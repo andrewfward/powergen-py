@@ -11,6 +11,7 @@
 
 import numpy as np
 
+
 class Customer:
     
     def __init__(self,customer_id,position,power_demand):

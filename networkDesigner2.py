@@ -9,11 +9,13 @@
 
 """
 
+import copy
+
 import pandas as pd
 import numpy as np
-import copy
 import matplotlib.pyplot as plt
 import networkx as nx
+
 
 class Source:
     
@@ -33,32 +35,22 @@ class Node:
     def __init__(self, location, node_id, power_demand):
         
         self.loc = tuple(location)  # [0] is X, [1] is Y
-        
         self.node_id = str(node_id)
-        
         self.Pdem = np.array(power_demand, dtype="float64")
-        
         self.cost = 0
-        
         self.csrt_sat = True  # constraints satisfied upon creation
         
         #-------CONNECTIONS---------------------------------------------------#
         
         self.parent = 0  # all nodes initially connected to source
-        
         self.children = []
-        
         self.line_res = 0  # resistance in line between node and its parent
         
         #-------CURRENT/VOLTAGE ARRAYS----------------------------------------#
         
-        placeholder_array = np.zeros(len(self.Pdem))
-        
-        self.I = placeholder_array  # current drawn by node at each hour
-        
-        self.I_line = placeholder_array  # current in line at each hour
-        
-        self.V = placeholder_array  # voltage across node at each time step
+        self.I = 0  # current drawn by node at each hour
+        self.I_line = 0  # current in line at each hour
+        self.V = 0  # voltage across node at each time step
         
         #-------CMST TRACKERS-------------------------------------------------#
         
@@ -97,55 +89,249 @@ class Node:
 
 class NetworkDesigner:
     
-    def __init__(self, network_voltage, max_V_drop=None):
+    def __init__ (self, source_location, nodes_locations, nodes_power_dem,
+                  network_voltage, res_per_km, max_current, cost_per_km,
+                  scl=1, max_V_drop=None, node_ids=None, V_reg=6):
         
-        # base operating voltage of network
-        self.Vnet = network_voltage
-        
-        # if maximum voltage drop not specified, take as 6% of network voltage
-        if max_V_drop is None:
-            self.Vdrop_max = 0.06 * self.Vnet
-        else:
-            self.Vdrop_max = max_V_drop
-    
-    def import_nodes_kml(self,scale_factor=1):
-        
-        # TO BE IMPLEMENTED
-        
-        pass
-    
-    def import_nodes_csv(self,scale_factor=1):
-        
-        scale = scale_factor
-        
-        # read CSV file
-        df = pd.read_csv("nodes.csv")
-        df = df.set_index("ID")
-        
+        #-------NODES & SOURCE------------------------------------------------#
         self.nodes = []
         
-        # create source and node objects from entries in CSV
-        source = True
-        for node_id,data in df.iteritems():
-            # first entry is source
-            if source:
-                source_location = [scale * int(data[0]), scale * int(data[1])]
-                self.nodes.append(Source(source_location))
-                source = False
-            # rest are nodes
-            else:
-                location = [scale * int(data[0]), scale * int(data[1])]
-                power_demand = data[2:].tolist()
-                self.nodes.append(Node(location, node_id, power_demand))
-    
-    def cable_specs(self, res_per_km, max_current, cost_per_km):
+        # create source object - scale location coordinates first
+        source_location = (source_location[0] * scl, source_location[1] * scl)
+        self.nodes.append(Source(source_location))
         
+        # create node objects
+        for idx,loc in enumerate(nodes_locations):
+            if node_ids == None:  # no IDs provided
+                # self.nodes.append(Node(nodes_locations, idx, power_demand))
+                node_id = idx
+            else:  # IDs provided
+                node_id = node_ids[idx]
+            
+            power_demand = nodes_power_dem[idx]
+            loc = (loc[0] * scl, loc[1] * scl)
+            self.nodes.append(Node(loc, node_id, power_demand))
+        
+        #-------NETWORK PARAMETERS--------------------------------------------#
+        self.Vnet = network_voltage
+        
+        if max_V_drop is None:  # exact max voltage drop NOT specified
+            self.Vdrop_max = V_reg/100 * self.Vnet
+        else:
+            self.Vdrop_max = max_V_drop
+        
+        #-------CABLE PARAMETERS--------------------------------------------#
         self.res_meter = res_per_km / 1000
-        
         self.Imax = max_current
-        
         self.cost_meter = cost_per_km / 1000
     
+    # def __init__(self, network_voltage, max_V_drop=None):
+        
+    #     # base operating voltage of network
+    #     self.Vnet = network_voltage
+        
+    #     # if maximum voltage drop not specified, take as 6% of network voltage
+    #     if max_V_drop is None:
+    #         self.Vdrop_max = 0.06 * self.Vnet
+    #     else:
+    #         self.Vdrop_max = max_V_drop
+    
+    # def import_nodes_kml(self,scale_factor=1):
+        
+    #     # TO BE IMPLEMENTED
+        
+    #     pass
+    
+    # def import_nodes_csv(self, filename, scale_factor=1):
+        
+    #     scale = scale_factor
+        
+    #     # read CSV file
+    #     df = pd.read_csv(str(filename))
+    #     df = df.set_index("ID")
+        
+    #     self.nodes = []
+        
+    #     # create source and node objects from entries in CSV
+    #     source = True
+    #     for node_id,data in df.iteritems():
+    #         # first entry is source
+    #         if source:
+    #             source_location = [scale * int(data[0]), scale * int(data[1])]
+    #             self.nodes.append(Source(source_location))
+    #             source = False
+    #         # rest are nodes
+    #         else:
+    #             location = [scale * int(data[0]), scale * int(data[1])]
+    #             power_demand = data[2:].tolist()
+    #             self.nodes.append(Node(location, node_id, power_demand))
+    
+    # def cable_specs(self, res_per_km, max_current, cost_per_km):
+        
+    #     self.res_meter = res_per_km / 1000
+        
+    #     self.Imax = max_current
+        
+    #     self.cost_meter = cost_per_km / 1000
+    
+    #-------HIGH LEVEL METHODS------------------------------------------------#
+    
+    def build_network(self):
+        
+        self._setup()
+        
+        self._cmst()
+        
+        self._disconnect_failed()
+        
+        self.calc_cost()
+    
+    def network_Pdem(self):
+        
+        net_Pdem = sum([node.Pdem for node in self.nodes 
+                        if type(node) == Node and node.csrt_sat])
+        
+        # create yearly power demand profile
+        net_Pdem = np.tile(net_Pdem, 365)
+        
+        return net_Pdem
+    
+    def _setup(self):
+        """
+        Initialisation phase for CMST.
+        Step 1: assign each node to own subtree
+        Step 2: create distance, connection, checked paths matrices
+        Step 3: calculate current drawn by each node
+        Step 4: calculate resistance of all connections
+        Step 5: test voltage constraint on connection
+        
+        """
+        # all nodes part of own subtree initially
+        self._init_subtrees()
+        
+        # create & populate connection/distance/checked path matrices
+        self._init_matrices()
+        
+        # calculate resistance of line between nodes and source
+        # and test voltage constraints
+        self._init_constraints()
+        
+        print("\nSETUP DONE!")
+        
+    def _cmst(self):
+        
+        further_improvements = True
+        self.old_best_gate = None
+        self.old_best_node = None
+        
+        loop = 0
+        
+        while further_improvements == True: #and loop < 4:
+            
+            loop += 1
+            print("-------------------------------")
+            print("\nloop " + str(loop))
+            
+            print("\nlooking for candidates")
+            
+            # find candidate pair
+            best_gate_idx, best_node_idx = self._candidate_nodes()
+            
+            if best_gate_idx == False and best_node_idx == False:
+                
+                print("\nNEW CONNECTION NOT FOUND")
+                break
+            
+            print("\nsaving state")
+            
+            # save current state before making connection
+            self._save_state()
+            
+            print("\nconnecting nodes")
+            print("ATTEMPTING")
+            print("gate: " + str(best_gate_idx))
+            print("node: " + str(best_node_idx))
+            
+            # connect pair
+            self._connect_nodes(best_gate_idx, best_node_idx)
+            
+            print("\ntesting constraints")
+            
+            # test constraints on new connection
+            # if constraint broken
+            if self._test_constraints(best_gate_idx) == False:
+                
+                print("\nfailed constraints check, resetting connection")
+                # reset the connection
+                self._load_prev_state()
+            
+            # # save best connections
+            # self.old_best_gate = best_gate_idx
+            # self.old_best_node = best_node_idx
+        
+    def calc_cost(self):
+        self.total_length = np.sum(self.connections) / 2
+        self.total_cost = self.total_length * self.cost_meter
+        
+        print("\ntotal length: " + str(round(self.total_length,2)) + " m")
+        print("\ntotal cost: £" + str(round(self.total_cost,2)))
+        pass
+    
+    def draw_graph(self, save=False):
+        
+        x = [node.loc[0] for node in self.nodes]
+        y = [node.loc[1] for node in self.nodes]
+        
+        plt.figure(figsize=(10,10))
+        # plt.figure()
+        plt.scatter(x[0],y[0],c="orange")  # source
+        plt.scatter(x[1:],y[1:])  # nodes
+        for i in range(len(x)):
+            if i == 0:
+                # plt.annotate("SRC", (x[i], y[i]))
+                plt.text(x[i],y[i],"SRC",fontsize="small")
+            else:
+                # plt.annotate(str(i), (x[i], y[i]))
+                plt.text(x[i],y[i],str(i),fontsize="small")
+        plt.show
+        
+        if save == True:
+            plt.savefig("initial layout", dpi=300)
+        
+        plt.figure(figsize=(20,20))
+        # plt.figure()
+        G = nx.Graph()
+
+        # filter valid edges (value not 0 in final connection matrix)
+        edges_valid = np.transpose(self.final_connect.nonzero())
+        # filter invalid edges
+        invalid_connect = self.connections - self.final_connect
+        edges_invalid = np.transpose(invalid_connect.nonzero())
+        pos = dict()
+        for node_idx,node in enumerate(self.nodes):
+            pos[node_idx] = node.loc
+        
+        G.add_edges_from(edges_valid)
+        G.add_edges_from(edges_invalid)
+        
+        color_map = []
+        for node_idx in G:
+            node = self.nodes[node_idx]
+            if type(node) == Source:
+                color_map.append("tab:orange")
+            elif node.csrt_sat:
+                color_map.append("tab:blue")
+            else:
+                color_map.append("tab:red")
+                
+        nx.draw_networkx_nodes(G, node_color=color_map, pos=pos)
+        nx.draw_networkx_edges(G, pos=pos, edgelist=edges_valid)
+        nx.draw_networkx_labels(G, pos=pos)
+        plt.show
+        
+        if save == True:
+            plt.savefig("final network", dpi=300)
+            
     #-------INITIALISATION PHASE----------------------------------------------#
     
     def _init_subtrees(self):
@@ -567,158 +753,3 @@ class NetworkDesigner:
             if type(node) != Source and node.csrt_sat == False:
                 self.final_connect[node_idx,:] = 0
                 self.final_connect[:,node_idx] = 0
-            
-    #-------HIGH LEVEL METHODS------------------------------------------------#
-    
-    def setup(self):
-        """
-        Initialisation phase for CMST.
-        Step 1: assign each node to own subtree
-        Step 2: create distance, connection, checked paths matrices
-        Step 3: calculate current drawn by each node
-        Step 4: calculate resistance of all connections
-        Step 5: test voltage constraint on connection
-        
-        """
-        # all nodes part of own subtree initially
-        self._init_subtrees()
-        
-        # create & populate connection/distance/checked path matrices
-        self._init_matrices()
-        
-        # calculate resistance of line between nodes and source
-        # and test voltage constraints
-        self._init_constraints()
-        
-        print("\nSETUP DONE!")
-        
-    def cmst(self):
-        
-        further_improvements = True
-        self.old_best_gate = None
-        self.old_best_node = None
-        
-        loop = 0
-        
-        while further_improvements == True: #and loop < 4:
-            
-            loop += 1
-            print("-------------------------------")
-            print("\nloop " + str(loop))
-            
-            print("\nlooking for candidates")
-            
-            # find candidate pair
-            best_gate_idx, best_node_idx = self._candidate_nodes()
-            
-            if best_gate_idx == False and best_node_idx == False:
-                
-                print("\nNEW CONNECTION NOT FOUND")
-                break
-            
-            print("\nsaving state")
-            
-            # save current state before making connection
-            self._save_state()
-            
-            print("\nconnecting nodes")
-            print("ATTEMPTING")
-            print("gate: " + str(best_gate_idx))
-            print("node: " + str(best_node_idx))
-            
-            # connect pair
-            self._connect_nodes(best_gate_idx, best_node_idx)
-            
-            print("\ntesting constraints")
-            
-            # test constraints on new connection
-            # if constraint broken
-            if self._test_constraints(best_gate_idx) == False:
-                
-                print("\nfailed constraints check, resetting connection")
-                # reset the connection
-                self._load_prev_state()
-            
-            # # save best connections
-            # self.old_best_gate = best_gate_idx
-            # self.old_best_node = best_node_idx
-        
-    def calc_cost(self):
-        self.total_length = np.sum(self.connections) / 2
-        self.total_cost = self.total_length * self.cost_meter
-        
-        print("\ntotal length: " + str(round(self.total_length,2)) + " m")
-        print("\ntotal cost: £" + str(round(self.total_cost,2)))
-        pass
-    
-    def build_network(self):
-        
-        self.setup()
-        
-        self.cmst()
-        
-        self._disconnect_failed()
-        
-        self.calc_cost()
-    
-    def network_Pdem(self):
-        
-        net_Pdem = sum([node.Pdem for node in self.nodes 
-                        if type(node) == Node and node.csrt_sat])
-        
-        net_Pdem = np.tile(net_Pdem, 365)
-        
-        return net_Pdem
-    
-    def draw_graph(self, save=False):
-        
-        x = [node.loc[0] for node in self.nodes]
-        y = [node.loc[1] for node in self.nodes]
-        
-        plt.figure(figsize=(10,10))
-        # plt.figure()
-        plt.scatter(x[0],y[0],c="orange")  # source
-        plt.scatter(x[1:],y[1:])  # nodes
-        for i in range(len(x)):
-            if i == 0:
-                # plt.annotate("SRC", (x[i], y[i]))
-                plt.text(x[i],y[i],"SRC",fontsize="small")
-            else:
-                # plt.annotate(str(i), (x[i], y[i]))
-                plt.text(x[i],y[i],str(i),fontsize="small")
-        plt.show
-        
-        if save == True:
-            plt.savefig("initial layout", dpi=300)
-        
-        plt.figure(figsize=(20,20))
-        # plt.figure()
-        G = nx.Graph()
-
-        edges_valid = np.transpose(self.final_connect.nonzero())
-        invalid_connect = self.connections - self.final_connect
-        edges_invalid = np.transpose(invalid_connect.nonzero())
-        pos = dict()
-        for node_idx,node in enumerate(self.nodes):
-            pos[node_idx] = node.loc
-        
-        G.add_edges_from(edges_valid)
-        G.add_edges_from(edges_invalid)
-        
-        color_map = []
-        for node_idx in G:
-            node = self.nodes[node_idx]
-            if type(node) == Source:
-                color_map.append("tab:orange")
-            elif node.csrt_sat:
-                color_map.append("tab:blue")
-            else:
-                color_map.append("tab:red")
-                
-        nx.draw_networkx_nodes(G, node_color=color_map, pos=pos)
-        nx.draw_networkx_edges(G, pos=pos, edgelist=edges_valid)
-        nx.draw_networkx_labels(G, pos=pos)
-        plt.show
-        
-        if save == True:
-            plt.savefig("final network", dpi=300)
