@@ -163,56 +163,6 @@ class NetworkDesigner:
         
         return cls(src_loc, node_locs, power_demands, network_voltage,
                    res_per_km, max_current, cost_per_km, node_ids)
-        
-    
-    # def __init__(self, network_voltage, max_V_drop=None):
-        
-    #     # base operating voltage of network
-    #     self.Vnet = network_voltage
-        
-    #     # if maximum voltage drop not specified, take as 6% of network voltage
-    #     if max_V_drop is None:
-    #         self.Vdrop_max = 0.06 * self.Vnet
-    #     else:
-    #         self.Vdrop_max = max_V_drop
-    
-    # def import_nodes_kml(self,scale_factor=1):
-        
-    #     # TO BE IMPLEMENTED
-        
-    #     pass
-    
-    # def import_nodes_csv(self, filename, scale_factor=1):
-        
-    #     scale = scale_factor
-        
-    #     # read CSV file
-    #     df = pd.read_csv(str(filename))
-    #     df = df.set_index("ID")
-        
-    #     self.nodes = []
-        
-    #     # create source and node objects from entries in CSV
-    #     source = True
-    #     for node_id,data in df.iteritems():
-    #         # first entry is source
-    #         if source:
-    #             source_location = [scale * int(data[0]), scale * int(data[1])]
-    #             self.nodes.append(Source(source_location))
-    #             source = False
-    #         # rest are nodes
-    #         else:
-    #             location = [scale * int(data[0]), scale * int(data[1])]
-    #             power_demand = data[2:].tolist()
-    #             self.nodes.append(Node(location, node_id, power_demand))
-    
-    # def cable_specs(self, res_per_km, max_current, cost_per_km):
-        
-    #     self.res_meter = res_per_km / 1000
-        
-    #     self.Imax = max_current
-        
-    #     self.cost_meter = cost_per_km / 1000
     
     #-------HIGH LEVEL METHODS------------------------------------------------#
     

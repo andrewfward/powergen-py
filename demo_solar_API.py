@@ -10,10 +10,10 @@ import genSizer as gs
 """
 Cost & technical parameters
 
-    PV panel cost = 150.98 (per unit)
-    battery cost = 301.71 (per unit)
-    diesel generator cost = 320 (per unit)
-    fuel cost = 0.32 (per Lt)
+    PV panel cost = £150.98 (per unit)
+    battery cost = £301.71 (per unit)
+    diesel generator cost = £320 (per unit)
+    fuel cost = £0.32 (per Lt)
     
     PV panel capacity = 250 W
     maximum battery energy = 2040 Wh
@@ -29,6 +29,8 @@ solCost = 150.98
 battCost = 301.71
 genCost = 320
 fuelCost = 0.32
+
+pv_capacity = 250
 EbattMax_unit = 2040
 EbattMin_unit = 408
 Pgen_unit = 750
@@ -47,8 +49,8 @@ longitude = -16.57
 power_demand = [1000]*8760
 
 # retrieve estimated single PV panel output from RN
-capacity = 250
-output_pv_unit = pv.pv_output(latitude, longitude, capacity, year=2019,
+
+output_pv_unit = pv.pv_output(latitude, longitude, pv_capacity, year=2019,
                               auto_dataset=True, auto_tilt=True)
 
 # create generation sizer object with 50 particles

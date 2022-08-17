@@ -9,6 +9,8 @@
     
 """
 
+import math
+
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
@@ -19,8 +21,8 @@ import customer_cluster as cc
 class CustomerClustering:
     
     def __init__(self, init_cluster, max_connections, network_voltage,
-                 pole_cost, resistance_per_km, current_rating, cost_per_km,
-                 max_voltage_drop=None, max_distance=None):
+                 pole_cost, pole_spacing, resistance_per_km, current_rating,
+                 cost_per_km, max_voltage_drop=None, max_distance=None):
         
         # network parameters
         self.network_voltage = network_voltage
@@ -34,6 +36,7 @@ class CustomerClustering:
         self.max_distance = max_distance
         self.max_connections = max_connections
         self.pole_cost = pole_cost
+        self.pole_spacing = pole_spacing
         
         # cable parameters
         self.res_m = resistance_per_km / 1000
@@ -46,8 +49,8 @@ class CustomerClustering:
         self.all_clusters_valid = False
         
     @classmethod
-    def import_from_csv(cls, filename, max_connections,
-                        network_voltage, pole_cost, resistance_per_km,
+    def import_from_csv(cls, filename, max_connections, network_voltage, 
+                        pole_cost, pole_spacing, resistance_per_km, 
                         current_rating, cost_per_km, scale_factor=1,
                         max_voltage_drop=None, max_distance=None):
         
@@ -65,8 +68,8 @@ class CustomerClustering:
         init_cluster = cc.InitCluster(customers)
         
         return cls(init_cluster, max_connections, network_voltage, pole_cost,
-                   resistance_per_km, current_rating, cost_per_km,
-                   max_voltage_drop=max_voltage_drop,
+                   pole_spacing, resistance_per_km, current_rating,
+                   cost_per_km, max_voltage_drop=max_voltage_drop,
                    max_distance=max_distance)
     
     @classmethod
@@ -75,9 +78,9 @@ class CustomerClustering:
         # PLACEHOLDER
         pass
     
-    def get_clusters(self):
+    # def get_clusters(self):
         
-        return self.clusters
+    #     return self.clusters
     
     def cluster(self):
         
@@ -96,7 +99,22 @@ class CustomerClustering:
                     new_clusters += self._apply_kmeans(cluster)
             
             self.clusters = new_clusters
-            
+    
+        self._total_cost()
+    
+    def _total_cost(self):
+        
+        d = np.array([cluster.distances for cluster in self.clusters],dtype=object)
+        # concatenating all arrays and summing all elements
+        self.total_distance = np.sum(np.concatenate(d))
+        
+        line_cost = self.total_distance * self.cost_m
+        num_poles = math.ceil(self.total_distance / self.pole_spacing)
+        num_poles += len(self.clusters)
+        poles_cost = num_poles * self.pole_cost
+        
+        self.total_cost = line_cost + poles_cost
+    
     def _test_constraints_all(self):
         
         self.all_clusters_valid = True  # assume all clusters valid initially
