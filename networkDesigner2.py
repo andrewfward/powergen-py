@@ -90,7 +90,7 @@ class Node:
 class NetworkDesigner:
     
     def __init__ (self, source_location, nodes_locations, nodes_power_dem,
-                  network_voltage, res_per_km, max_current, cost_per_km,
+                  network_voltage, pole_cost, pole_spacing, res_per_km, max_current, cost_per_km,
                   scl=1, max_V_drop=None, node_ids=None, V_reg=6):
         
         #-------NODES & SOURCE------------------------------------------------#
@@ -114,19 +114,23 @@ class NetworkDesigner:
         #-------NETWORK PARAMETERS--------------------------------------------#
         self.Vnet = network_voltage
         
+        self.pole_cost = pole_cost
+        self.pole_spacing = pole_spacing
+        
         if max_V_drop is None:  # exact max voltage drop NOT specified
             self.Vdrop_max = V_reg/100 * self.Vnet
         else:
             self.Vdrop_max = max_V_drop
         
-        #-------CABLE PARAMETERS--------------------------------------------#
+        #-------CABLE PARAMETERS----------------------------------------------#
         self.res_meter = res_per_km / 1000
         self.Imax = max_current
         self.cost_meter = cost_per_km / 1000
     
     @classmethod
-    def import_from_csv(cls, filename, network_voltage, res_per_km, max_current,
-                        cost_per_km, scl=1, max_V_drop=None, V_reg=6):
+    def import_from_csv(cls, filename, network_voltage, pole_cost, pole_spacing,
+                        res_per_km, max_current, cost_per_km, scl=1,
+                        max_V_drop=None, V_reg=6):
         
         # read CSV file
         df = pd.read_csv(str(filename))
@@ -162,6 +166,7 @@ class NetworkDesigner:
                 print(data[2:].tolist(),"\n")
         
         return cls(src_loc, node_locs, power_demands, network_voltage,
+                   pole_cost, pole_spacing,
                    res_per_km, max_current, cost_per_km, node_ids)
     
     #-------HIGH LEVEL METHODS------------------------------------------------#
