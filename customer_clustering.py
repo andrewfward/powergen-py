@@ -78,10 +78,6 @@ class CustomerClustering:
         # PLACEHOLDER
         pass
     
-    # def get_clusters(self):
-        
-    #     return self.clusters
-    
     def cluster(self):
         
         while self.all_clusters_valid == False:
