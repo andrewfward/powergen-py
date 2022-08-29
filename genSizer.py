@@ -11,11 +11,7 @@
 """
 FUTURE WORK
 
-- add error handling (missing files/wrong formats/etc...)
-- improve convergence detection --> track across more generations (detects prematurely)
-- flexible amount of hours (so can process data with different time spans)
-    > scale Pget etc. based on length of Psol
-- make plotting function external/isolated --> current one influences behaviour of PSO
+- make plotting function external/isolated --> current one influences PSO perf
 - create automatic hyperparameter method
 
 """
@@ -149,8 +145,8 @@ class GenSizer:
                 self.invalid_particles.append(p)
                 continue
             
-            p.Pgen = [0]*8760
-            p.Ebatt = [0]*8761
+            p.Pgen = [0] * len(self.Pdem)
+            p.Ebatt = [0] * (len(self.Pdem) + 1)  # +1 avoids overshoot
             p.Edump = 0
             
             Ns = p.pos[0]
@@ -175,7 +171,7 @@ class GenSizer:
             
             timebreaker = 0
             
-            for t in range(8760):
+            for t in range(len(self.Pdem)):
                 
                 p.Psol[t] = Ns * self.Psol_unit[t]
                 
