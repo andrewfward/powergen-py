@@ -10,6 +10,7 @@
 """
 
 import copy
+import math
 
 import pandas as pd
 import numpy as np
@@ -309,7 +310,12 @@ class NetworkDesigner:
     
     def _calc_cost(self):
         self.total_length = np.sum(self.connections) / 2
-        self.total_cost = self.total_length * self.cost_meter
+        line_cost = self.total_length * self.cost_meter
+        num_poles = math.ceil(self.total_length / self.pole_spacing)
+        num_poles += len(self.nodes)
+        poles_cost = num_poles * self.pole_cost
+        
+        self.total_cost = line_cost + poles_cost
         
         print("\ntotal length: " + str(round(self.total_length,2)) + " m")
         print("\ntotal cost: £" + str(round(self.total_cost,2)))

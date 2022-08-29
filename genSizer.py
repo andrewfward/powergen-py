@@ -383,7 +383,9 @@ class GenSizer:
 
             
             i += 1
-            
+        
+        self.total_cost = self.swarm[0].cost
+        
         # displaying results in console
         print("\nSolar Panels:\t\t", self.swarm[0].pos[0])
         print("Batteries:\t\t\t", self.swarm[0].pos[1])
