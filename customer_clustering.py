@@ -23,6 +23,39 @@ class CustomerClustering:
     def __init__(self, init_cluster, max_connections, network_voltage,
                  pole_cost, pole_spacing, resistance_per_km, current_rating,
                  cost_per_km, max_voltage_drop=None, max_distance=None):
+        """
+        Clusters customers together in preparation for network design.
+
+        Parameters
+        ----------
+        init_cluster : InitCluster
+            InitCluster object which initially pools all customers together.
+        max_connections : int
+            Maximum customers allowed per cluster.
+        network_voltage : float
+            Voltage at which network operates.
+        pole_cost : TYPE
+            Cost of electrical pole which will be placed at centroid
+            location of cluster and to support line.
+        pole_spacing : flaot
+            Space between each electrical pole in meters.
+        resistance_per_km : float
+            Resistance per kilometer of cable used in ohm/km.
+        current_rating : float
+            Cable's max current rating.
+        cost_per_km : float
+            Cable's cost per kilometer.
+        max_voltage_drop : float, optional
+            Maximum voltage drop allowed between pole and customer.
+            If None then maximum voltage drop is dictated by voltage
+            regulation.
+            The default is None.
+        max_distance : float, optional
+            Maximum distance allowed between pole and customer
+            in meters.
+            The default is None.
+
+        """
         
         # network parameters
         self.network_voltage = network_voltage
@@ -53,7 +86,48 @@ class CustomerClustering:
                         pole_cost, pole_spacing, resistance_per_km, 
                         current_rating, cost_per_km, scale_factor=1,
                         max_voltage_drop=None, max_distance=None):
-        
+        """
+        Creates CustomerCLustering object and generates Customer
+        objects based on data within specified CSV file.
+
+        Parameters
+        ----------
+        cls : TYPE
+            DESCRIPTION.
+        filename : string
+            Name of CSV file containing customer information.
+            Must follow default format.
+        max_connections : int
+            Maximum customers allowed per cluster.
+        network_voltage : float
+            Voltage at which network operates.
+        pole_cost : TYPE
+            Cost of electrical pole which will be placed at centroid
+            location of cluster and to support line.
+        pole_spacing : flaot
+            Space between each electrical pole in meters.
+        resistance_per_km : float
+            Resistance per kilometer of cable used in ohm/km.
+        current_rating : float
+            Cable's max current rating.
+        cost_per_km : float
+            Cable's cost per kilometer.
+        max_voltage_drop : float, optional
+            Maximum voltage drop allowed between pole and customer.
+            If None then maximum voltage drop is dictated by voltage
+            regulation.
+            The default is None.
+        max_distance : float, optional
+            Maximum distance allowed between pole and customer
+            in meters.
+            The default is None.
+
+        Returns
+        -------
+        CustomerClustering
+            CustoemrClustering object is returned with given parameters.
+
+        """
         # read csv file as pandas dataframe
         df = pd.read_csv(str(filename))
         df = df.set_index("ID")
@@ -79,6 +153,11 @@ class CustomerClustering:
         pass
     
     def cluster(self):
+        """
+        Clusters customers together given maximum connections, maximum
+        voltage drop and maximum distance established when initialised.
+
+        """
         
         while self.all_clusters_valid == False:
             
@@ -95,10 +174,14 @@ class CustomerClustering:
                     new_clusters += self._apply_kmeans(cluster)
             
             self.clusters = new_clusters
-    
+        
         self._total_cost()
     
     def _total_cost(self):
+        """
+        Calculates the total cost of the clustering setup.
+
+        """
         
         d = np.array([cluster.distances for cluster in self.clusters],dtype=object)
         # concatenating all arrays and summing all elements
@@ -112,6 +195,10 @@ class CustomerClustering:
         self.total_cost = line_cost + poles_cost
     
     def _test_constraints_all(self):
+        """
+        Tests constraints on all clusters.
+
+        """
         
         self.all_clusters_valid = True  # assume all clusters valid initially
         
@@ -130,12 +217,25 @@ class CustomerClustering:
                 self.all_clusters_valid = False
                 
     def _apply_kmeans(self,cluster):
-        # split invalid cluster into two new clusters
+        """
+        Splits cluster into two new clusters by applying kmeans with
+        k = 2 (two clusters). 
+
+        Parameters
+        ----------
+        cluster : Cluster
+            Cluster object to be split.
+
+        Returns
+        -------
+        new_clusters : list
+            List containing two new cluster objects.
+
+        """
         
         pos = np.array([customer.position for customer in cluster.customers])
         
         # apply kmeans to invalid clusters (k = 2)
-        # kmeans = KMeans(n_clusters=2,n_init=25).fit(pos)
         kmeans = KMeans(n_clusters=2).fit(pos)
         
         cluster_centers = kmeans.cluster_centers_
@@ -155,13 +255,16 @@ class CustomerClustering:
         return new_clusters
     
     def _merge_loop(self):
+        """
+        Attempts merging clusters together in order to reduce number
+        of clusters.
+
+        """
         
         self._dist_matrix = self._init_dist_matrix()
         
         further_imp = True
         while further_imp:
-            
-            # print(self._dist_matrix)
             
             # find indices of closest pair
             idx_1, idx_2 = np.unravel_index(self._dist_matrix.argmin(),
@@ -191,6 +294,16 @@ class CustomerClustering:
                 further_imp = False
             
     def _test_constraints(self,cluster):
+        """
+        Tests maximum distance (if specified), maximum voltage and
+        maximum customers constraints on cluster.
+
+        Parameters
+        ----------
+        cluster : Cluster
+            Cluster object on which constraints tested.
+
+        """
         
         for cluster in self.clusters:
             
@@ -204,6 +317,16 @@ class CustomerClustering:
             cluster.test_max_connections(self.max_connections)
     
     def _init_dist_matrix(self):
+        """
+        Creates distance matrix containing distances between clusters.
+        Used for merging process. Pairs to i
+
+        Returns
+        -------
+        dist_matrix : Numpy array
+            Matrix containing distances between clusters.
+
+        """
         # create distance matrix (distances between clusters)
         # used for merging process
         # pairs to ignore marked with inf
