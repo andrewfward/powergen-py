@@ -13,6 +13,9 @@ FUTURE WORK
 
 - make plotting function external/isolated --> current one influences PSO perf
 - create automatic hyperparameter method
+- power demand can be any length but should really be limited to preset
+  lengths - x years, x months, x days etc... all with hourly time steps.
+  this way solar power can be matched. (talk to Scott & Mike about it)
 
 """
 
@@ -28,7 +31,7 @@ class Particle:
     
     # technical trackers
     fuel_used = 0
-    Edump = 0               # acts as inital value too
+    Edump = 0
     
     # previous position placeholders
     prev_pos = []
@@ -45,6 +48,19 @@ class Particle:
     autonomDays = 0
     
     def __init__(self,name,array_len):
+        """
+        Particle object used for PSO in GenSizer object.
+
+        Parameters
+        ----------
+        name : str
+            Name of particle.
+        array_len : int
+            Length of arrays dedicated to power generation and
+            batteries. GenSizer object should provide this.
+
+        """
+        
         self.name = name
         
         self.Psol = [0] * array_len
@@ -63,27 +79,85 @@ class Particle:
         self.pbest_pos = self.pos.copy()
         
     def __str__(self):
-        return self.name + ", Position: " + str(self.pos) + ", Velocity: " + str(self.vel) + ". Cost: " + str(self.cost)
+        """
+        Prints name, position, velocity and cost value of particle.
+        Used for debugging purposes.
+
+        Returns
+        -------
+        str
+            String containing name, position, velocity,
+            cost of particle.
+
+        """
+        
+        return (self.name + ", Position: " + str(self.pos) + ", Velocity: "
+                + str(self.vel) + ". Cost: " + str(self.cost))
 
     def updatePosition(self):
+        """
+        Updates posistion of particle based on velocity.
+        Saves previous location for later use.
+
+        """
+        
         # save previous position
         self.prev_pos = self.pos.copy()
         
-        self.pos[0] = self.pos[0] + self.vel[0]     # x
-        self.pos[1] = self.pos[1] + self.vel[1]     # y
-        self.pos[2] = self.pos[2] + self.vel[2]     # z
+        self.pos[0] = self.pos[0] + self.vel[0]  # update x
+        self.pos[1] = self.pos[1] + self.vel[1]  # update y
+        self.pos[2] = self.pos[2] + self.vel[2]  # update z
         
     
 class GenSizer:
     
     def __init__(self, swarm_size, power_demand, psol_unit,
-                 sol_cost, batt_cost, gen_cost, fuel_cost,  # costs
-                 batt_Wh_max_unit, batt_Wh_min_unit,  # battery parameters
-                 gen_max_power_out, gen_fuel_req,  # generator parameters
+                 sol_cost, batt_cost, gen_cost, fuel_cost, # costs
+                 batt_Wh_max_unit, batt_Wh_min_unit,       # battery parameters
+                 gen_max_power_out, gen_fuel_req,        # generator parameters
                  max_off_hours, min_autonomy_days):
-        
+        """
+        Establishes optimal combination of PV array size, number of 
+        batteries, and number of generators needed to meet power
+        mini-grid's power demand with lowest cost. Uses particle swarm
+        optimisation to do so.
 
-        self.swarm_size = swarm_size
+        Parameters
+        ----------
+        swarm_size : int
+            Number of particles used in PSO.
+        power_demand : array-like
+            Array containing yearly mini-grid power demand.
+            Hourly timestep (length should be 8760).
+        psol_unit : array-like
+            Array containing power provided by single PV panel.
+        sol_cost : float
+            Cost of single PV panel.
+        batt_cost : float
+            Cost of single battery.
+        gen_cost : float
+            Cost of single diesel generator.
+        fuel_cost : float
+            Cost of fuel per liter.
+        batt_Wh_max_unit : float
+            Battery maximum Wh capacity.
+        batt_Wh_min_unit : float
+            Battery minimum Wh capacity (lowest it can go).
+        gen_max_power_out : float
+            Maximum power output of generator in Watts.
+        gen_fuel_req : float
+            Fuel requirement in liter per hour of generation
+            at max power.
+        max_off_hours : int
+            Maximum hours in a year the grid can be offline for.
+            More will decrease cost.
+        min_autonomy_days : int
+            Number of autonomy days required for grid. More will
+            increase cost.
+
+        """
+
+        self.swarm_size = int(swarm_size)
         self.Pdem = power_demand
         self.Psol_unit = psol_unit
         
@@ -117,6 +191,11 @@ class GenSizer:
         self.invalid_particles = []
         
     def _test_constraints(self):
+        """
+        Checks which particles do not meet power demand. Adds invalid
+        particles to "naughty" list so they can be dealt with later.
+
+        """
         
         self.invalid_particles.clear()
         
@@ -207,14 +286,30 @@ class GenSizer:
                             p.Ebatt[t+1] = EbattMax
 
     def _delete_invalid(self):
+        """
+        Deletes invalid particles. Only used in initialisation phase
+        of particle swarm optimisation.
+
+        """
+        
         for p in self.invalid_particles:
             self.swarm.remove(p)
         
     def _update_pos_all(self):
+        """
+        Updates position of all particles within swarm.
+
+        """
+        
         for p in self.swarm:
             p.updatePosition()
     
     def _reset_invalid(self):
+        """
+        Resets to last valid position all particles in "naughty" list.
+
+        """
+        
         for p in self.swarm:
             if p in self.invalid_particles:
                 p.pos = p.prev_pos.copy()
@@ -222,6 +317,13 @@ class GenSizer:
                 p.fuel_used = p.prev_fuel
     
     def _fitness_all(self):
+        """
+        Evaluates cost of each particle within swarm, updates global
+        best value and position, updates particle's best value and
+        position.
+
+        """
+        
         # evaluate cost (obj function)
         for p in self.swarm:
             Ns = p.pos[0]
@@ -250,6 +352,17 @@ class GenSizer:
             p.gbest_value = gbest
             
     def _update_vel_all(self, current_iter):
+        """
+        Updates velocity for all particles in swarm.
+
+        Parameters
+        ----------
+        current_iter : int
+            Number of PSO loop iteration. Used for dynamic
+            intertia (w), self-confidence (c1) and conformity (c2)
+            hyperparameters.
+
+        """
         
         for p in self.swarm:
             
@@ -284,24 +397,40 @@ class GenSizer:
             p.vel[2] = math.floor(w*p.vel[2] + c1*r1*(pbest[2]-p.pos[2]) + c2*r2*(gbest[2]-p.pos[2]))
     
     def _check_converge(self):
-        # !!! NEEDS IMPROVEMENT
+        """
+        Checks if swarm has converged before maximum number of
+        itarations met.
+
+        """
 
         positions = [particle.pos for particle in self.swarm]
-        # self.converged = (positions.count(positions[0]) == len(positions))
         
-        
-        # retrieve velocity of each particle and place in list (using list comprehension)
         velocities = [particle.vel for particle in self.swarm]
         
         # self.converged is true if:
-        #   all the particles have 0 velocity in all directions (and condition to check for empty list)
+        #   all the particles have 0 velocity in all directions
+        #   (and condition to check for empty list)
         #   all particles are in the same position
-        self.converged = (velocities.count([0,0,0]) == len(velocities)) and (positions.count(positions[0]) == len(positions))
+        self.converged = ((velocities.count([0,0,0]) == len(velocities)) 
+                         and (positions.count(positions[0]) == len(positions)))
         
+        # cleanup
         del velocities
         del positions
         
     def _animate(self,iteration_number):
+        """
+        Creates 3D scatter plot animation of swarm. Hinders performance
+        and works best with IDE that have inline plotting.
+        (for example Spyder, Jupyter Notebooks)
+
+        Parameters
+        ----------
+        iteration_number : int
+            PSO loop iteration number.
+
+        """
+        
         self.fig = plt.figure()
         ax = self.fig.add_subplot(projection = "3d")
         x, y, z = [], [], []
@@ -325,6 +454,21 @@ class GenSizer:
         del self.fig
     
     def optimise(self, max_iter, final_plot=False, animate=False):
+        """
+        Optimises generation mix by applying PSO.
+
+        Parameters
+        ----------
+        max_iter : int
+            maximum number of iterations.
+        final_plot : bool, optional
+            Plots power demand (W), solar power (W),
+            battery energy (Wh) and generator power (W)
+            against time (h). The default is False.
+        animate : bool, optional
+            Animate swarm while optimising. The default is False.
+
+        """
         
         # used for inertia correction (w) in velocity update
         self.max_iter = max_iter
@@ -432,6 +576,5 @@ class GenSizer:
         # invalid particles --> move back to prev pos and vel 0
         # for each particle
             # evaluate cost
-        # update pbest
-        # update gbest
+        # update pbest & gbest
         # update velocity
