@@ -175,6 +175,9 @@ class CustomerClustering:
             
             self.clusters = new_clusters
         
+        #!!!
+        self._merge_loop()
+        
         self._total_cost()
     
     def _total_cost(self):
@@ -261,6 +264,8 @@ class CustomerClustering:
 
         """
         
+        print("\nAttempting merge")
+        
         self._dist_matrix = self._init_dist_matrix()
         
         further_imp = True
@@ -293,6 +298,8 @@ class CustomerClustering:
             if np.isinf(self._dist_matrix).all():
                 further_imp = False
             
+        print("\nFinished merge attempt")
+
     def _test_constraints(self,cluster):
         """
         Tests maximum distance (if specified), maximum voltage and

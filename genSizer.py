@@ -23,21 +23,6 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 
-#-----FUNCTIONS--------------------------------------------------------------------------#
-
-# !!! MIGHT NEED TO CHANGE
-# gets the data excel file name (assuming one excel file in folder)
-# def excelFileName():
-#     for folder, sub_folder, files in os.walk(os.getcwd()):
-#         for f in files:
-#             f_extension = os.path.splitext(f)[1]
-#             if f_extension in [".xlsx",".xls"]:
-#                 return f
-#                 break
-#             else:
-#                 continue
-
-#-----CLASSES----------------------------------------------------------------------------#
 
 class Particle:
     

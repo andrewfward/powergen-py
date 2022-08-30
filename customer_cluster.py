@@ -27,10 +27,6 @@ class Customer:
         power_demand : array_like
             Hourly power demand of customer. 1D array.
 
-        Returns
-        -------
-        None.
-
         """
         
         self.customer_id = customer_id
@@ -50,10 +46,6 @@ class Cluster:
             X and Y coordinates of cluster centroid in 2D. Shape 2x1.
         customers : array_like
             Array of Customer objects.
-
-        Returns
-        -------
-        None.
 
         """
         
