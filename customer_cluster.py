@@ -16,7 +16,7 @@ class Customer:
     
     def __init__(self,customer_id,position,power_demand):
         """
-        
+        Customer object for clustering algorithm.
 
         Parameters
         ----------
@@ -32,6 +32,7 @@ class Customer:
         None.
 
         """
+        
         self.customer_id = customer_id
         self.position = tuple(position)
         self.Pdem = np.array(power_demand)
@@ -41,22 +42,23 @@ class Cluster:
     
     def __init__(self,position,customers):
         """
-        
+        Cluster object which contains Customer objects.
 
         Parameters
         ----------
         position : array_like
             X and Y coordinates of cluster centroid in 2D. Shape 2x1.
         customers : array_like
-            Array of Customer objects (preferably list).
+            Array of Customer objects.
 
         Returns
         -------
         None.
 
         """
+        
         self.position = tuple(position)
-        self.customers = customers
+        self.customers = list(customers)
         self.n_customers = len(customers)
         self.distances = self._dist_matrix()  # calculate distance matrix
         
@@ -73,10 +75,11 @@ class Cluster:
 
         Returns
         -------
-        None.
+        Numpy array
+            Array populated with internal centroid-customer distances.
 
         """
-        
+
         # x and y coordinates of all customers
         X = np.array([customer.position[0] for customer in self.customers])
         Y = np.array([customer.position[1] for customer in self.customers])
@@ -88,28 +91,51 @@ class Cluster:
         # euclidian distance
         return ((X_c - X)**2 + (Y_c - Y)**2)**(1/2)
     
-    # def update_Pdem(self):
-        
-    #     self.Pdem_total = 0
-        
-    #     for customer in self.customers:
-    #         self.Pdem_total += customer.Pdem
-    
     def test_distances(self,max_distance):
+        """
+        Checks if distances between centroid and customers is valid.
+        Affects validity of cluster.
+
+        Parameters
+        ----------
+        max_distance : float
+            Maximum distance allowed between centroid and customers.
+
+        Returns
+        -------
+        None.
+
+        """
         
         if np.max(self.distances) > max_distance:
-            # self.distances_valid = False
             self.valid = False
             
             print("\ndistance constraint broken")
             
         else:
-            # self.distances_valid = True
             self.valid = True
             
             print("\ndistance valid")
     
     def test_voltages(self,network_voltage,max_voltage_drop,res_per_meter):
+        """
+        Tests if voltage drops valid in lines connecting centroid and
+        customers. Affects validity of cluster.
+
+        Parameters
+        ----------
+        network_voltage : float
+            Voltage at which network operates.
+        max_voltage_drop : TYPE
+            Maximum allowable voltage drop within clusters.
+        res_per_meter : TYPE
+            Cable's resistance per meter (ohm/m).
+
+        Returns
+        -------
+        None.
+
+        """
         
         for idx,customer in enumerate(self.customers):
             
@@ -130,6 +156,20 @@ class Cluster:
                 pass
     
     def test_max_connections(self,max_connections):
+        """
+        Checks if number of connections below maximum allowed. Affects
+        validity of cluster.
+
+        Parameters
+        ----------
+        max_connections : int
+            Maximum connections (or customers) allowed per cluster.
+
+        Returns
+        -------
+        None.
+
+        """
         
         if len(self.customers) > max_connections:
             
@@ -146,14 +186,32 @@ class Cluster:
 class InitCluster(Cluster):
     
     def __init__(self,customers):
+        """
+        Special cluster object used for first first cluster created.
+        Centroid is automatically calculated at creation, instead of
+        being set as a parameter.
+
+        Parameters
+        ----------
+        customers : array-like
+            Array of Customer objects.
+
+        Returns
+        -------
+        None.
+
+        """
         
-        self.customers = customers
+        self.customers = list(customers)
         self.n_customers = len(customers)
         self._find_centroid()
         self.distances = self._dist_matrix()
         self.valid = False
         
     def _find_centroid(self):
+        """
+        Find centroid of cluster.
+        """
         
         # x and y coordinates of all customers
         X = [customer.position[0] for customer in self.customers]
