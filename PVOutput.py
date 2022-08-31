@@ -26,10 +26,14 @@ def automatic_tilt(lati):
     Original author: Stefan Pfenninger
     As found at: https://github.com/renewables-ninja/gsee/blob/master/gsee/pv.py
     
-    Stefan Pfenninger and Iain Staffell (2016). Long-term patterns of European PV output using 30 years of validated hourly reanalysis and satellite data. Energy 114, pp. 1251-1265. doi: 10.1016/j.energy.2016.08.060
+    Stefan Pfenninger and Iain Staffell (2016).
+    Long-term patterns of European PV output using 30 years of 
+    validated hourly reanalysis and satellite data.
+    Energy 114, pp. 1251-1265. doi: 10.1016/j.energy.2016.08.060
     
     Returns optimal tilt angle for given latitude.
-    Works for latitudes between 0 and 50 deg, above 50 deg, tilt is set to 40 deg.
+    Works for latitudes between 0 and 50 deg, above 50 deg,
+    tilt is set to 40 deg.
     Assumes panel is facing equator (azim = 180 deg)
 
     Parameters
@@ -57,7 +61,8 @@ def automatic_tilt(lati):
 def automatic_dataset(lati, long, year):
     """
     Returns the optimal dataset based on location and year.
-    CM-SAF SARAH returned if location within "Europe/NA square" and year between 2000-2015.
+    CM-SAF SARAH returned if location within "Europe/NA square"
+    and year between 2000-2015.
     
     "Europe/North Africa square" (lat,lon):
         
@@ -103,14 +108,19 @@ def pv_output(lati, long, capacity, year=2019,
         Capacity of PV panel (Watts).
     dataset : string, optional
         Solar resources dataset.
-        Options:    NASA MERRA-2 ("merra2"): global coverage, 1980 - ongoing.
-                    CM-SAF SARAH ("sarah"): covers Europe, higher accuracy, 2000 - 2015. 
+        Options:
+        NASA MERRA-2 ("merra2"):
+            global coverage, 1980 - ongoing.
+        CM-SAF SARAH ("sarah"):
+            covers Europe, higher accuracy, 2000 - 2015. 
         The default is "merra2".
     system_loss : float, optional
-        System's internal losses. Value between 0 and 1. The default is 0.
+        System's internal losses. Value between 0 and 1.
+        The default is 0.
         (future work will account for this)
     auto_tilt : Boolean, optional
-        If True, tilt is automatically calculated based on latitude. The default is True.
+        If True, tilt is automatically calculated based on latitude.
+        The default is True.
     tilt : flaot, optional
         PV panel tilt angle (deg). The default is 0.
     azim : float, optional
@@ -119,7 +129,8 @@ def pv_output(lati, long, capacity, year=2019,
     Returns
     -------
     list
-        Hourly power output for single PV panel with given capacity in selected year.
+        Hourly power output for single PV panel with given capacity in
+        selected year.
 
     """
     if auto_dataset == True:
