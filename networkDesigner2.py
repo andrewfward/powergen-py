@@ -23,6 +23,15 @@ class Source:
     node_id = "SOURCE"
     
     def __init__(self, location):
+        """
+        Source node, purely used to store network source location.
+
+        Parameters
+        ----------
+        location : array-like
+            1x2 array containing X and Y coordinates of source.
+
+        """
         
         self.loc = tuple(location)  # [0] is X, [1] is Y
     
@@ -33,7 +42,21 @@ class Source:
 
 class Node:
     
-    def __init__(self, location, node_id, power_demand):
+    def __init__(self, location, power_demand, node_id=None):
+        """
+        Represents any element in the network that draws power, such
+        as customers and clusters of customers.
+
+        Parameters
+        ----------
+        location : array-like
+            1x2 array containing X and Y coordinates of source.
+        power_demand : array-like
+            Power demand of node.
+        node_id : str, optional
+            Node identifier. The default is None.
+
+        """
         
         self.loc = tuple(location)  # [0] is X, [1] is Y
         self.node_id = str(node_id)
@@ -60,9 +83,13 @@ class Node:
     
     def isgate(self):
         """
-        True if node is gate node (connected to source node).
-        False otherwise.
-        
+        Returns gate status of node.
+
+        Returns
+        -------
+        bool
+            True if node is gate node. False otherwise.
+
         """
         
         if self.parent == 0:
@@ -72,12 +99,12 @@ class Node:
     
     def has_children(self):
         """
-        True if node has children. False otherwise.
+        Returns parent status of node.
 
         Returns
         -------
         bool
-            Status of children existing.
+            True if node has children. False otherwise.
 
         """
         
@@ -91,8 +118,46 @@ class Node:
 class NetworkDesigner:
     
     def __init__ (self, source_location, nodes_locations, nodes_power_dem,
-                  network_voltage, pole_cost, pole_spacing, res_per_km, max_current, cost_per_km,
-                  scl=1, max_V_drop=None, node_ids=None, V_reg=6):
+                  network_voltage, pole_cost, pole_spacing, res_per_km,
+                  max_current, cost_per_km, scl=1, max_V_drop=None,
+                  node_ids=None, V_reg=6):
+        """
+        Generates network connecting nodes using Esau-Williams CMST.
+        
+        Parameters
+        ----------
+        source_location : array-like
+            1x2 array containing X and Y coordinates of source.
+        nodes_locations : array-like
+            Array of 1x2 arrays containing X and Y coordinates of nodes.
+        nodes_power_dem : array-like
+            Array of arrays containing power demands of each
+            node in network.
+        network_voltage : float
+            Operating voltage of network.
+        pole_cost : float
+            Cost of single electrical pole.
+        pole_spacing : float
+            Spacing between poles in meters.
+        res_per_km : float
+            Cable's resistance per kilometer (ohm/km).
+        max_current : float
+            Cable's maximum current rating.
+        cost_per_km : float
+            Cable's cost per km.
+        scl : float, optional
+            Scales coordinates of source and nodes by chosen amount.
+            The default is 1.
+        max_V_drop : flaot, optional
+            Maximum voltage drop. If not specified value dictated by
+            voltage regulation. The default is None.
+        node_ids : array-like, optional
+            Array containing node identifiers. The default is None.
+        V_reg : float, optional
+            Maximum voltage drop as percentage of network voltage.
+            The default is 6.
+
+        """
         
         #-------NODES & SOURCE------------------------------------------------#
         self.nodes = []
@@ -104,13 +169,13 @@ class NetworkDesigner:
         for idx,loc in enumerate(nodes_locations):
             
             # get node ID
-            if node_ids == None:  # IDs NOT provided
+            if node_ids == None:  # if IDs NOT provided
                 node_id = idx
             else:
-                node_id = node_ids[idx]
+                node_id = str(node_ids[idx])
             
             power_demand = nodes_power_dem[idx]
-            self.nodes.append(Node(loc, node_id, power_demand))
+            self.nodes.append(Node(loc, power_demand, node_id=node_id))
         
         #-------NETWORK PARAMETERS--------------------------------------------#
         self.Vnet = network_voltage
@@ -132,6 +197,50 @@ class NetworkDesigner:
     def import_from_csv(cls, filename, network_voltage, pole_cost, pole_spacing,
                         res_per_km, max_current, cost_per_km, scl=1,
                         max_V_drop=None, V_reg=6):
+        """
+        Imports source location and nodes location & power demands
+        from specified CSV file.
+        
+        Parameters
+        ----------
+        source_location : array-like
+            1x2 array containing X and Y coordinates of source.
+        nodes_locations : array-like
+            Array of 1x2 arrays containing X and Y coordinates of nodes.
+        nodes_power_dem : array-like
+            Array of arrays containing power demands of each
+            node in network.
+        network_voltage : float
+            Operating voltage of network.
+        pole_cost : float
+            Cost of single electrical pole.
+        pole_spacing : float
+            Spacing between poles in meters.
+        res_per_km : float
+            Cable's resistance per kilometer (ohm/km).
+        max_current : float
+            Cable's maximum current rating.
+        cost_per_km : float
+            Cable's cost per km.
+        scl : float, optional
+            Scales coordinates of source and nodes by chosen amount.
+            The default is 1.
+        max_V_drop : flaot, optional
+            Maximum voltage drop. If not specified value dictated by
+            voltage regulation. The default is None.
+        node_ids : array-like, optional
+            Array containing node identifiers. The default is None.
+        V_reg : float, optional
+            Maximum voltage drop as percentage of network voltage.
+            The default is 6.
+
+        Returns
+        -------
+        NetworkDesigner
+            Returns NetworkDesigner object with specified parameters
+            and data extracted from CSV file.
+
+        """
         
         # read CSV file
         df = pd.read_csv(str(filename))
@@ -173,6 +282,10 @@ class NetworkDesigner:
     #-------HIGH LEVEL METHODS------------------------------------------------#
     
     def build_network(self):
+        """
+        Builds network using Esau-Williams CMST.
+
+        """
         
         self._setup()
         
@@ -185,6 +298,15 @@ class NetworkDesigner:
         self._calc_total_Pdem()
     
     def draw_graph(self, save=False):
+        """
+        Draws network graph.
+
+        Parameters
+        ----------
+        save : bool, optional
+            If True graph image is saved. The default is False.
+
+        """
         
         x = [node.loc[0] for node in self.nodes]
         y = [node.loc[1] for node in self.nodes]
@@ -242,13 +364,9 @@ class NetworkDesigner:
     def _setup(self):
         """
         Initialisation phase for CMST.
-        Step 1: assign each node to own subtree
-        Step 2: create distance, connection, checked paths matrices
-        Step 3: calculate current drawn by each node
-        Step 4: calculate resistance of all connections
-        Step 5: test voltage constraint on connection
-        
+
         """
+
         # all nodes part of own subtree initially
         self._init_subtrees()
         
@@ -262,6 +380,10 @@ class NetworkDesigner:
         print("\nSETUP DONE!")
     
     def _cmst(self):
+        """
+        Runs CMST algorithm to create network.
+
+        """
         
         further_improvements = True
         self.old_best_gate = None
@@ -309,6 +431,11 @@ class NetworkDesigner:
                 self._load_prev_state()
     
     def _calc_cost(self):
+        """
+        Calculates the network's total cost and total cable length.
+
+        """
+        
         self.total_length = np.sum(self.connections) / 2
         line_cost = self.total_length * self.cost_meter
         num_poles = math.ceil(self.total_length / self.pole_spacing)
@@ -321,6 +448,11 @@ class NetworkDesigner:
         print("\ntotal cost: £" + str(round(self.total_cost,2)))
     
     def _calc_total_Pdem(self):
+        """
+        Calculates network's total power demand.
+        Does not include any losses.
+
+        """
         
         # sum all of power demands
         net_Pdem = sum([node.Pdem for node in self.nodes 
@@ -336,10 +468,6 @@ class NetworkDesigner:
         """
         Sets the subtree of each node to iteself. Only used in initialisation
         phase for Esau-Williams algorithm.
-
-        Returns
-        -------
-        None.
 
         """
         
@@ -399,10 +527,6 @@ class NetworkDesigner:
             Node object for which line resistance of upstream connection is
             calculated.
 
-        Returns
-        -------
-        None.
-
         """
         
         if type(node) == Node:
@@ -452,6 +576,18 @@ class NetworkDesigner:
     #-------CMST METHODS------------------------------------------------------#
     
     def _candidate_nodes(self):
+        """
+        Finds two candidate nodes for new connection. Candidate nodes
+        are (1) best node to connect to, (2) best gate to connect.
+
+        Returns
+        -------
+        Node
+            Best gate to connect.
+        Node
+            Best node to connect to.
+
+        """
         
         best_tradeoff = 0
         best_gate_idx = None
@@ -507,16 +643,16 @@ class NetworkDesigner:
         """
         Saves the network's current state.
 
-        Returns
-        -------
-        None.
-
         """
         
         self.prev_nodes = copy.deepcopy(self.nodes)
         self.prev_connections = copy.deepcopy(self.connections)
         
     def _load_prev_state(self):
+        """
+        Restores nodes and connections from last saved state.
+
+        """
         
         self.nodes = self.prev_nodes
         self.connections = self.prev_connections
@@ -532,10 +668,6 @@ class NetworkDesigner:
             Index of joining gate (in nodes array).
         node_idx : int
             Index of joining node (in nodes array).
-
-        Returns
-        -------
-        None.
 
         """
         # get gate & node objects
@@ -583,6 +715,10 @@ class NetworkDesigner:
         self.calculate_res(gate)
     
     def _reset_checks(self):
+        """
+        Resets check variables of each node in network.
+
+        """
         
         for node in self.nodes:
             if type(node) == Node:
@@ -592,6 +728,21 @@ class NetworkDesigner:
                 node.I_line = np.zeros(len(node.Pdem))
     
     def _test_current(self,gate_idx):
+        """
+        Tests currents of all nodes in subtree, starting from gate
+        node that has just been connected.
+
+        Parameters
+        ----------
+        gate_idx : int
+            Index of gate node that has been connected to new subtree.
+
+        Returns
+        -------
+        bool
+            True if all currents valid. False if any current invalid.
+
+        """
         
         active_idx = gate_idx
         active_node = self.nodes[gate_idx]
@@ -602,11 +753,6 @@ class NetworkDesigner:
             
             print(active_idx)
             
-            # if active node has children:
-            #   > ignore children with checked current
-            #   > if child with unchecked current exists
-            #       > child becomes active node
-            
             all_checked = False
             
             # if active node has children
@@ -616,12 +762,14 @@ class NetworkDesigner:
                 for child_idx in active_node.children:
                     child = self.nodes[child_idx]
                     
-                    # child with unchecked current found, so stop searching
+                    # child with unchecked current found
+                    # becomes active and stops searching
                     if child.I_checked == False:
                         active_idx = child_idx
                         active_node = child
                         break
                     
+                    # all children checked
                     elif child_idx == active_node.children[-1]:
                         all_checked = True
                     
@@ -663,6 +811,21 @@ class NetworkDesigner:
             return True
     
     def _test_voltage(self,gate_idx):
+        """
+        Tests voltages of all nodes in subtree in which new connection
+        has been made.
+
+        Parameters
+        ----------
+        gate_idx : int
+            Index of gate node that has been connected to new subtree.
+
+        Returns
+        -------
+        bool
+            True if all voltages valid. False if any voltage invalid.
+
+        """
         
         active_idx = self.nodes[gate_idx].subtree
         active_node = self.nodes[active_idx]
@@ -725,6 +888,21 @@ class NetworkDesigner:
             return True
     
     def _test_constraints(self,gate_idx):
+        """
+        Tests constraints on newly connected subtree.
+        Updates constraint attribute in nodes.
+
+        Parameters
+        ----------
+        gate_idx : int
+            Index of gate node that has been connected to new subtree..
+
+        Returns
+        -------
+        bool
+            True if constraints satisfied. False if constraints broken.
+
+        """
         
         self._reset_checks()
         
@@ -744,6 +922,10 @@ class NetworkDesigner:
             return True
         
     def _disconnect_failed(self):
+        """
+        Undoes invalid connections if constraints not satisfied.
+
+        """
         
         self.final_connect = self.connections.copy()
         
