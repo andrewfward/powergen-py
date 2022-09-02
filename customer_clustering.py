@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 
-import customer_cluster as cc
+from customer_cluster import Customer, Cluster, InitCluster
 
 
 class CustomerClustering:
@@ -137,9 +137,9 @@ class CustomerClustering:
         for customer_id,data in df.iteritems():
             position = (scale_factor*data[0], scale_factor*data[1])  # X 0, Y 1
             power_demand = data[2:]
-            customers.append(cc.Customer(customer_id,position,power_demand))
+            customers.append(Customer(customer_id,position,power_demand))
         
-        init_cluster = cc.InitCluster(customers)
+        init_cluster = InitCluster(customers)
         
         return cls(init_cluster, max_connections, network_voltage, pole_cost,
                    pole_spacing, resistance_per_km, current_rating,
@@ -186,7 +186,8 @@ class CustomerClustering:
 
         """
         
-        d = np.array([cluster.distances for cluster in self.clusters],dtype=object)
+        d = np.array([cluster.distances for cluster in self.clusters],
+                     dtype=object)
         # concatenating all arrays and summing all elements
         self.total_distance = np.sum(np.concatenate(d))
         
@@ -253,7 +254,7 @@ class CustomerClustering:
                     customers.append(customer)
             
             # create new cluster
-            new_clusters.append(cc.Cluster(center,customers))
+            new_clusters.append(Cluster(center,customers))
             
         return new_clusters
     
@@ -279,7 +280,7 @@ class CustomerClustering:
             cluster_2 = self.clusters[idx_2]
             customers = cluster_1.customers + cluster_2.customers
             
-            new_cluster = cc.InitCluster(customers)
+            new_cluster = InitCluster(customers)
             self._test_constraints(new_cluster)
             
             if new_cluster.valid == True:
@@ -363,7 +364,8 @@ class CustomerClustering:
                     
                     continue
                 
-                elif (cluster_1.n_customers + cluster_2.n_customers) > self.max_connections:
+                elif ((cluster_1.n_customers + cluster_2.n_customers)
+                      > self.max_connections):
                     
                     print("\nmax customers",idx_1,idx_2)
                     

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-    Source and Noce classes for Customer Clustering
+    Source and Node classes for Network Designer
     
     "Energy For Development" VIP (University of Strathclyde)
     
