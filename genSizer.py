@@ -20,9 +20,8 @@ FUTURE WORK
 """
 
 import random
-# import os
 import math
-# import pandas as pd
+
 import matplotlib.pyplot as plt
 import numpy as np
 
