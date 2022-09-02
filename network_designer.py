@@ -349,8 +349,8 @@ class NetworkDesigner:
         
         self.total_cost = line_cost + poles_cost
         
-        print("\ntotal length: " + str(round(self.total_length,2)) + " m")
-        print("\ntotal cost: £" + str(round(self.total_cost,2)))
+        # print("\ntotal length: " + str(round(self.total_length,2)) + " m")
+        # print("\ntotal cost: £" + str(round(self.total_cost,2)))
     
     def _calc_total_Pdem(self):
         """
