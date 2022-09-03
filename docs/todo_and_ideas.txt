@@ -23,6 +23,12 @@ To-do's & ideas for future improvements / additional features.
 	- Probably a smart idea to use numpy and vectorised operations instead
 	  of lists and for loops.
 
+4. Change generation sizer cost calculation.
+	- The objective function (cost) uses fixed parameters which come from
+	  a fixed discount rate.
+	- Cost is calculated using NPV which needs a discount ratio (r) and a
+	  payback period (time).
+
 3. Translate MATLAB "Economic Evaluation" into Python
 	- Last subsystem of original MATALB program to be translated into 
 	  Python.
