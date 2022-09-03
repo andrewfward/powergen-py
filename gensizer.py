@@ -374,7 +374,8 @@ class GenSizer:
             # w = 0.5*(self.max_iter - current_iter)/(self.max_iter) + 0.4
             
             # PARA UP
-            # w = 0.5 * ((current_iter - self.max_iter)**2 / self.max_iter**2) + 0.4
+            # w = (0.5 * ((current_iter - self.max_iter)**2 / self.max_iter**2)
+            #      + 0.4)
             
             # PARA DOWN
             w = 0.9 - 0.5 * (current_iter**2 / self.max_iter**2)
@@ -391,9 +392,12 @@ class GenSizer:
             pbest = p.pbest_pos.copy()
             gbest = p.gbest_pos.copy()
 
-            p.vel[0] = math.floor(w*p.vel[0] + c1*r1*(pbest[0]-p.pos[0]) + c2*r2*(gbest[0]-p.pos[0]))
-            p.vel[1] = math.floor(w*p.vel[1] + c1*r1*(pbest[1]-p.pos[1]) + c2*r2*(gbest[1]-p.pos[1]))
-            p.vel[2] = math.floor(w*p.vel[2] + c1*r1*(pbest[2]-p.pos[2]) + c2*r2*(gbest[2]-p.pos[2]))
+            p.vel[0] = math.floor(w*p.vel[0] + c1*r1*(pbest[0]-p.pos[0]) 
+                                  + c2*r2*(gbest[0]-p.pos[0]))
+            p.vel[1] = math.floor(w*p.vel[1] + c1*r1*(pbest[1]-p.pos[1]) 
+                                  + c2*r2*(gbest[1]-p.pos[1]))
+            p.vel[2] = math.floor(w*p.vel[2] + c1*r1*(pbest[2]-p.pos[2]) 
+                                  + c2*r2*(gbest[2]-p.pos[2]))
     
     def _check_converge(self):
         """
@@ -437,7 +441,9 @@ class GenSizer:
             x.append(p.pos[0])
             y.append(p.pos[1])
             z.append(p.pos[2])
-        ax.scatter(x,y,z, marker="o", c=random.sample([x for x in range(self.swarm_size)],len(x)), cmap="Set2")
+        ax.scatter(x,y,z, marker="o", 
+                   c=random.sample([x for x in range(self.swarm_size)],len(x)),
+                   cmap="Set2")
         
         ax.set_xlabel("Solar Panels")
         ax.set_ylabel("Batteries")
@@ -499,7 +505,7 @@ class GenSizer:
             self._test_constraints()
             self._reset_invalid()
             self._fitness_all()
-            self._update_vel_all(i)  # iter number passed for inertia adjustment
+            self._update_vel_all(i)  # iter number passed to adjust inertia
             self._check_converge()
             
             if animate == True: 
@@ -549,13 +555,17 @@ class GenSizer:
             # energy batteries
             plt.figure()
             plt.plot(t, self.swarm[0].Ebatt[0:8760], label="Energy stored")
-            plt.plot(t, [self.swarm[0].pos[1] * self.EbattMax_unit]*8760, label="Max. capacity")   # line showing max capacity
-            plt.plot(t, [self.swarm[0].pos[1] * self.EbattMin_unit]*8760, label="Min. capacity")   # line showing min capacity
+            plt.plot(t, [self.swarm[0].pos[1] * self.EbattMax_unit]*8760,
+                     label="Max. capacity")   # line showing max capacity
+            plt.plot(t, [self.swarm[0].pos[1] * self.EbattMin_unit]*8760,
+                     label="Min. capacity")   # line showing min capacity
             plt.xlabel("Time (h)")
             plt.ylabel("Energy (Wh)")
             plt.xlim(0,xmax)      # only show first 24hrs
-            plt.yticks(np.linspace(0,self.swarm[0].pos[1] * self.EbattMax_unit,num=7))
-            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.075), shadow=True, ncol = 3)
+            plt.yticks(np.linspace(0,self.swarm[0].pos[1] * self.EbattMax_unit,
+                                   num=7))
+            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.075), 
+                       shadow=True, ncol = 3)
             plt.title("Stored Energy in Batteries vs Time (Initial 72 hours)")
             plt.show()
             
