@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 """
     Illustrates how all subsystems interact with eachother.
+    
+    Advice: set breakpoints next to each step comment to see what each
+    subsystem does, one at a time. A variable explorer can be extremely
+    useful too.
+    
 """
-
 
 import random
 
@@ -43,7 +47,7 @@ autonomDaysMin = 2
 
 # STEP 1 - CLUSTER CUSTOMERS TOGETHER
 
-# creat cluster object from CSV with parameters
+# creat cluster object from CSV and with defined parameters
 file = "nodes_datapdem.csv"
 clusterer = cc.CustomerClustering.import_from_csv(
     file,
@@ -71,7 +75,7 @@ nodes_locs = [node.position for node in nodes]
 nodes_Pdem = [node.Pdem_total for node in nodes]
 # nodes power demands is a list of arrays - each array is yearly demand for single node
 
-# create designer object with network parameters and nodes
+# create designer object with defined network parameters and nodes
 designer = nd.NetworkDesigner(
     source_location,
     nodes_locs,

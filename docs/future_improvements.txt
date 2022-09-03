@@ -1,0 +1,26 @@
+Ideas for future improvements / additional features.
+
+1. Standardise power demand profile timespans.
+	- Create standards for year / month / day in hourly steps.
+	- All subsystems that generate / use power demand must be adapted.
+	- This is so that the mini-grid can be designed based on different
+	  power demand profiles. Or power demand profiles can be repeated
+	  to create profiles that cover a longer timespan.
+	
+	Example: customer demand profiles cover 24hrs. The mini-grid is
+	  designed based on a full year and solar power is retrieved for a 
+	  full year too. This means that the standard profile for the design
+	  process should be a year, so the 24hr demand profile should be 
+	  repeated 365 in order to cover a full year. It would be useful to
+	  to have a toggle for the profile type and have all the subsystems
+	  respect it.
+
+2. Optimise performance of generation sizer (gensizer.py).
+	- The PSO algorithm could be faster. As of right now it is written
+	  with many for loops inside, which are quite slow in Python. It may
+	  be worth refactoring the way in which particle velocities and 
+	  positions are handled.
+	- Probably a smart idea to use numpy and vectorised operations instead
+	  of lists and for loops.
+
+3. 
