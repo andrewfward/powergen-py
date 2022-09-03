@@ -23,4 +23,18 @@ To-do's & ideas for future improvements / additional features.
 	- Probably a smart idea to use numpy and vectorised operations instead
 	  of lists and for loops.
 
-3. 
+3. Translate MATLAB "Economic Evaluation" into Python
+	- Last subsystem of original MATALB program to be translated into 
+	  Python.
+	- File is "EconomyExpert720.m".
+
+4. Make KML, KMZ reader & writer module.
+	- KML and KMZ are files for drawing on maps and storing data.
+	
+	Example use case: a mini-grid designer surveys a village for a
+	  potential electrification project. They map out the position of each
+	  customer (homes/businesses etc...) and their respective esitmated
+	  power demand using a map tool which saves data to a KML file or 
+	  similar. It would be immensily useful if the designer could then use
+	  the created file directly with our tool - so positions, power
+	  demands and other useful data is extracted and used.
