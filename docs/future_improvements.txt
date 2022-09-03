@@ -1,4 +1,4 @@
-Ideas for future improvements / additional features.
+To-do's & ideas for future improvements / additional features.
 
 1. Standardise power demand profile timespans.
 	- Create standards for year / month / day in hourly steps.
