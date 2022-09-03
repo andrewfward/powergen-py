@@ -18,8 +18,9 @@ FUTURE WORK
 """
 
 import requests
-import pandas as pd
 import json
+
+import pandas as pd
 
 def automatic_tilt(lati):
     """

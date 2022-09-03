@@ -6,12 +6,10 @@
 
 import random
 
-import numpy as np
-
 import customer_clustering as cc
 import network_designer as nd
-import PVOutput as pv
-import genSizer as gs
+import pvoutput as pv
+import gensizer as gs
 
 
 # STEP 0 - DEFINING PARAMETERS
