@@ -38,6 +38,7 @@ for idx,cluster in enumerate(clusterer.clusters):
         plt.scatter(x_c,y_c,c="black",marker="+")  # pole
 plt.title("Customer Clustering")
 plt.legend()
+plt.show()
 
 print("\nnumber of clusters:",len(clusterer.clusters))
 print("\ntotal line cost:",clusterer.total_cost)

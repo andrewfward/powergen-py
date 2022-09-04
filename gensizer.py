@@ -518,11 +518,11 @@ class GenSizer:
         
         # displaying results in console
         print("\nSolar Panels:\t\t", self.swarm[0].pos[0])
-        print("Batteries:\t\t\t", self.swarm[0].pos[1])
-        print("Generators:\t\t\t", self.swarm[0].pos[2])
-        print("Fuel used:\t\t\t", self.swarm[0].fuel_used)
-        print("Cost:\t\t\t\t",self.swarm[0].cost)
-        print("Days of Autonomy:\t",self.swarm[0].autonomDays)
+        print("Batteries:\t\t", self.swarm[0].pos[1])
+        print("Generators:\t\t", self.swarm[0].pos[2])
+        print("Fuel used:\t\t", self.swarm[0].fuel_used)
+        print("Cost:\t\t\t",round(self.swarm[0].cost,2))
+        print("Days of Autonomy:\t",round(self.swarm[0].autonomDays,2))
         
         # !!! final plotting -- turn into proper method for final version
         if final_plot == True:

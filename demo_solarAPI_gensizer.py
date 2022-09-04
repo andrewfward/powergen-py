@@ -4,8 +4,8 @@ Demo for Renewables.ninja API integration (with generation sizer PSO)
 """
 import random
 
-import PVOutput as pv
-import genSizer as gs
+import pvoutput as pv
+import gensizer as gs
 
 """
 Cost & technical parameters
