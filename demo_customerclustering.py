@@ -10,15 +10,17 @@ import customer_clustering as cc
 
 import matplotlib.pyplot as plt
 
-clusterer = cc.CustomerClustering.import_from_csv("nodes_datapdem.csv",
-                                                    max_connections=6,
-                                                    network_voltage=230,
-                                                    pole_cost=100,
-                                                    pole_spacing=50,
-                                                    resistance_per_km=4.61,
-                                                    current_rating=37,
-                                                    cost_per_km=1520,
-                                                    max_voltage_drop=11.5)
+clusterer = cc.CustomerClustering.import_from_csv(
+    "nodes_datapdem.csv",
+    max_connections=6,
+    network_voltage=230,
+    pole_cost=100,
+    pole_spacing=50,
+    resistance_per_km=4.61,
+    current_rating=37,
+    cost_per_km=1520,
+    max_voltage_drop=11.5
+    )
 
 clusterer.cluster()
 
