@@ -54,6 +54,7 @@ class Cluster:
         self.n_customers = len(customers)
         self.distances = self._dist_matrix()  # calculate distance matrix
         
+        
         self.Pdem_total = 0
         for customer in self.customers:
             self.Pdem_total += customer.Pdem

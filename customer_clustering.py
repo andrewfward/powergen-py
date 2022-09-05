@@ -152,17 +152,21 @@ class CustomerClustering:
         # PLACEHOLDER
         pass
     
-    def cluster(self):
+    def cluster(self, max_customers=6):
         """
-        Clusters customers together given maximum connections, maximum
-        voltage drop and maximum distance established when initialised.
+        Clusters customers together based on proximity and finds
+        centroid for each cluster.
 
+        Parameters
+        ----------
+        max_customers : int, optional
+            Maximum number of customers per cluster, default is 6
         """
-        
+
         while self.all_clusters_valid == False:
             
             # test constraints on all clusters
-            self._test_constraints_all()  # updates value of all_clusters_valid
+            self._test_constraints_all(max_customers)  # updates value of all_clusters_valid
             
             # keep valid and apply kmeans (k=2) to invalid clusters
             new_clusters = []
@@ -176,7 +180,7 @@ class CustomerClustering:
             self.clusters = new_clusters
         
         #!!!
-        self._merge_loop()
+        self._merge_loop(max_customers)
         
         self._total_cost()
     
@@ -199,7 +203,7 @@ class CustomerClustering:
         
         self.total_cost = line_cost + poles_cost
     
-    def _test_constraints_all(self):
+    def _test_constraints_all(self, max_customers):
         """
         Tests constraints on all clusters.
 
@@ -216,7 +220,8 @@ class CustomerClustering:
                 cluster.test_distances()
             cluster.test_voltages(self.network_voltage,self.max_voltage_drop,
                                   self.res_m)
-            cluster.test_max_connections(self.max_connections)
+            # cluster.test_max_connections(self.max_connections)
+            cluster.test_max_connections(max_customers)
             
             if cluster.valid == False:
                 self.all_clusters_valid = False
@@ -259,7 +264,7 @@ class CustomerClustering:
             
         return new_clusters
     
-    def _merge_loop(self):
+    def _merge_loop(self,max_customers):
         """
         Attempts merging clusters together in order to reduce number
         of clusters.
@@ -282,7 +287,7 @@ class CustomerClustering:
             customers = cluster_1.customers + cluster_2.customers
             
             new_cluster = InitCluster(customers)
-            self._test_constraints(new_cluster)
+            self._test_constraints(new_cluster,max_customers)
             
             if new_cluster.valid == True:
                 # remove old clusters and add new one
@@ -302,7 +307,7 @@ class CustomerClustering:
             
         print("\nFinished merge attempt")
 
-    def _test_constraints(self,cluster):
+    def _test_constraints(self,cluster,max_customers):
         """
         Tests maximum distance (if specified), maximum voltage and
         maximum customers constraints on cluster.
@@ -323,7 +328,7 @@ class CustomerClustering:
                 cluster.test_distances()
             cluster.test_voltages(self.network_voltage,self.max_voltage_drop,
                                   self.res_m)
-            cluster.test_max_connections(self.max_connections)
+            cluster.test_max_connections(max_customers)
     
     def _init_dist_matrix(self):
         """
