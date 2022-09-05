@@ -186,13 +186,14 @@ class CustomerClustering:
 
         """
         
+        # array of all distances
         d = np.array([cluster.distances for cluster in self.clusters],
                      dtype=object)
         # concatenating all arrays and summing all elements
-        self.total_distance = np.sum(np.concatenate(d))
+        self.total_cable_length = float(np.sum(np.concatenate(d)))
         
-        line_cost = self.total_distance * self.cost_m
-        num_poles = math.ceil(self.total_distance / self.pole_spacing)
+        line_cost = self.total_cable_length * self.cost_m
+        num_poles = math.ceil(self.total_cable_length / self.pole_spacing)
         num_poles += len(self.clusters)
         poles_cost = num_poles * self.pole_cost
         
