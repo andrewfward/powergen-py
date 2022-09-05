@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 
 clusterer = cc.CustomerClustering.import_from_csv(
     "nodes_datapdem.csv",
-    max_connections=6,
     network_voltage=230,
     pole_cost=100,
     pole_spacing=50,
@@ -22,7 +21,7 @@ clusterer = cc.CustomerClustering.import_from_csv(
     max_voltage_drop=11.5
     )
 
-clusterer.cluster()
+clusterer.cluster(max_customers=6)
 
 # DRAWING
 plt.figure()

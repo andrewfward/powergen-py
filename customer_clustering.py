@@ -20,7 +20,7 @@ from customer_cluster import Customer, Cluster, InitCluster
 
 class CustomerClustering:
     
-    def __init__(self, init_cluster, max_connections, network_voltage,
+    def __init__(self, init_cluster, network_voltage,
                  pole_cost, pole_spacing, resistance_per_km, current_rating,
                  cost_per_km, max_voltage_drop=None, max_distance=None):
         """
@@ -30,14 +30,12 @@ class CustomerClustering:
         ----------
         init_cluster : InitCluster
             InitCluster object which initially pools all customers together.
-        max_connections : int
-            Maximum customers allowed per cluster.
         network_voltage : float
             Voltage at which network operates.
-        pole_cost : TYPE
+        pole_cost : float
             Cost of electrical pole which will be placed at centroid
             location of cluster and to support line.
-        pole_spacing : flaot
+        pole_spacing : float
             Space between each electrical pole in meters.
         resistance_per_km : float
             Resistance per kilometer of cable used in ohm/km.
@@ -67,7 +65,7 @@ class CustomerClustering:
         
         # pole parameters
         self.max_distance = max_distance
-        self.max_connections = max_connections
+        # self.max_connections = max_connections
         self.pole_cost = pole_cost
         self.pole_spacing = pole_spacing
         
@@ -82,7 +80,7 @@ class CustomerClustering:
         self.all_clusters_valid = False
         
     @classmethod
-    def import_from_csv(cls, filename, max_connections, network_voltage, 
+    def import_from_csv(cls, filename, network_voltage, 
                         pole_cost, pole_spacing, resistance_per_km, 
                         current_rating, cost_per_km, scale_factor=1,
                         max_voltage_drop=None, max_distance=None):
@@ -97,14 +95,12 @@ class CustomerClustering:
         filename : string
             Name of CSV file containing customer information.
             Must follow default format.
-        max_connections : int
-            Maximum customers allowed per cluster.
         network_voltage : float
             Voltage at which network operates.
-        pole_cost : TYPE
+        pole_cost : float
             Cost of electrical pole which will be placed at centroid
             location of cluster and to support line.
-        pole_spacing : flaot
+        pole_spacing : float
             Space between each electrical pole in meters.
         resistance_per_km : float
             Resistance per kilometer of cable used in ohm/km.
@@ -141,7 +137,7 @@ class CustomerClustering:
         
         init_cluster = InitCluster(customers)
         
-        return cls(init_cluster, max_connections, network_voltage, pole_cost,
+        return cls(init_cluster, network_voltage, pole_cost,
                    pole_spacing, resistance_per_km, current_rating,
                    cost_per_km, max_voltage_drop=max_voltage_drop,
                    max_distance=max_distance)
@@ -273,7 +269,7 @@ class CustomerClustering:
         
         print("\nAttempting merge")
         
-        self._dist_matrix = self._init_dist_matrix()
+        self._dist_matrix = self._init_dist_matrix(max_customers)
         
         further_imp = True
         while further_imp:
@@ -296,7 +292,7 @@ class CustomerClustering:
                 self.clustere.append(new_cluster)
                 
                 # create new distance matrix
-                self._dist_matrix = self._init_dist_matrix()
+                self._dist_matrix = self._init_dist_matrix(max_customers)
             
             elif new_cluster.valid == False:
                 self._dist_matrix[idx_1,idx_2] = np.inf
@@ -330,7 +326,7 @@ class CustomerClustering:
                                   self.res_m)
             cluster.test_max_connections(max_customers)
     
-    def _init_dist_matrix(self):
+    def _init_dist_matrix(self,max_customers):
         """
         Creates distance matrix containing distances between clusters.
         Used for merging process. Pairs to i
@@ -352,7 +348,7 @@ class CustomerClustering:
             print("\nchecking cluster",idx_1)
             
             # skip cluster if it already has maximum number of customers
-            if cluster_1.n_customers == self.max_connections:
+            if cluster_1.n_customers == max_customers:
                 
                 print("\nskipped cluster",idx_1)
                 
@@ -371,7 +367,7 @@ class CustomerClustering:
                     continue
                 
                 elif ((cluster_1.n_customers + cluster_2.n_customers)
-                      > self.max_connections):
+                      > max_customers):
                     
                     print("\nmax customers",idx_1,idx_2)
                     
