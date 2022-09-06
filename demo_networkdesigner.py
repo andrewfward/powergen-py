@@ -19,9 +19,15 @@ res_per_km = 4.61  # ohm/km
 max_current = 37  # A
 cost_per_km = 1520  # £/km
 
-net = nd.NetworkDesigner.import_from_csv("nodes.csv", network_voltage,
-                                          res_per_km, max_current, cost_per_km,
-                                          scl=1, max_V_drop=11.5) 
+net = nd.NetworkDesigner.import_from_csv(
+    "nodes.csv",
+    network_voltage,
+    res_per_km,
+    max_current,
+    cost_per_km,
+    scl=1,
+    max_V_drop=11.5
+    ) 
 
 net.build_network()
 net.draw_graph(save=True)
