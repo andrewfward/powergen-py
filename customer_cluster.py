@@ -54,7 +54,7 @@ class Cluster:
         self.n_customers = len(customers)
         self.distances = self._dist_matrix()  # calculate distance matrix
         
-        
+
         self.Pdem_total = 0
         for customer in self.customers:
             self.Pdem_total += customer.Pdem
@@ -82,7 +82,7 @@ class Cluster:
         Y_c = self.position[1]
         
         # euclidian distance
-        return ((X_c - X)**2 + (Y_c - Y)**2)**(1/2)
+        return ((X_c - X)**2 + (Y_c - Y)**2)**(0.5)
     
     def test_distances(self,max_distance):
         """
@@ -180,7 +180,7 @@ class InitCluster(Cluster):
     
     def __init__(self,customers):
         """
-        Special cluster object used for first first cluster created.
+        Special cluster object used for first cluster created.
         Centroid is automatically calculated at creation, instead of
         being set as a parameter.
 
@@ -198,7 +198,7 @@ class InitCluster(Cluster):
         self.customers = list(customers)
         self.n_customers = len(customers)
         self._find_centroid()
-        self.distances = self._dist_matrix()
+        self.distances = self._dist_matrix()  # inherited from Cluster
         self.valid = False
         
     def _find_centroid(self):

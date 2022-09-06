@@ -51,3 +51,5 @@ To-do's & ideas for future improvements / additional features.
 	- Probably useful to have a single class which stores network parameters
 	- This class (object) can then be passed in as a parameter for
 	  whichever class needs the network parameters.
+
+6. 
