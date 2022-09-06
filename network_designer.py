@@ -261,7 +261,7 @@ class NetworkDesigner:
         nx.draw_networkx_nodes(G, node_color=color_map, pos=pos)
         nx.draw_networkx_edges(G, pos=pos, edgelist=edges_valid)
         nx.draw_networkx_labels(G, pos=pos)
-        plt.show
+        plt.show()
         
         if save == True:
             plt.savefig("final network", dpi=300)
@@ -342,12 +342,12 @@ class NetworkDesigner:
         """
         
         self.total_length = np.sum(self.connections) / 2
-        line_cost = self.total_length * self.cost_meter
-        num_poles = math.ceil(self.total_length / self.pole_spacing)
-        num_poles += len(self.nodes)
-        poles_cost = num_poles * self.pole_cost
+        self.line_cost = self.total_length * self.cost_meter
+        self.num_poles = math.ceil(self.total_length / self.pole_spacing)
+        self.num_poles += len(self.nodes)
+        self.poles_cost = self.num_poles * self.pole_cost
         
-        self.total_cost = line_cost + poles_cost
+        self.total_cost = self.line_cost + self.poles_cost
         
         # print("\ntotal length: " + str(round(self.total_length,2)) + " m")
         # print("\ntotal cost: £" + str(round(self.total_cost,2)))
