@@ -108,13 +108,9 @@ class NetworkDesigner:
         
         Parameters
         ----------
-        source_location : array-like
-            1x2 array containing X and Y coordinates of source.
-        nodes_locations : array-like
-            Array of 1x2 arrays containing X and Y coordinates of nodes.
-        nodes_power_dem : array-like
-            Array of arrays containing power demands of each
-            node in network.
+        filename : str
+            CSV file containing node locations, power demands and
+            source location.
         network_voltage : float
             Operating voltage of network.
         pole_cost : float
@@ -162,7 +158,7 @@ class NetworkDesigner:
                 src_loc = (scl * int(data[0]), scl * int(data[1]))
                 source = False
             
-                #!!!
+                #TODO for debug - can remove
                 print(" source location")
                 print(src_loc,"\n")
             
@@ -172,7 +168,8 @@ class NetworkDesigner:
                 node_locs.append(location)
                 node_ids.append(node_id)
                 power_demands.append(data[2:].tolist())
-        
+
+                #TODO for debug - can remove
                 print(" node location")
                 print(location)
                 print(" node_id")

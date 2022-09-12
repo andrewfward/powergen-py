@@ -22,77 +22,6 @@ import json
 
 import pandas as pd
 
-def automatic_tilt(lati):
-    """
-    Original author: Stefan Pfenninger
-    As found at: https://github.com/renewables-ninja/gsee/blob/master/gsee/pv.py
-    
-    Stefan Pfenninger and Iain Staffell (2016).
-    Long-term patterns of European PV output using 30 years of 
-    validated hourly reanalysis and satellite data.
-    Energy 114, pp. 1251-1265. doi: 10.1016/j.energy.2016.08.060
-    
-    Returns optimal tilt angle for given latitude.
-    Works for latitudes between 0 and 50 deg, above 50 deg,
-    tilt is set to 40 deg.
-    Assumes panel is facing equator (azim = 180 deg)
-
-    Parameters
-    ----------
-    lati : flaot
-        Latitude in degrees.
-    
-    Returns
-    -------
-    float or int
-        Optimal tilt angle for equator facing panel in degrees.
-
-    """
-    lati = abs(lati)
-    
-    if lati <= 25:
-        return lati * 0.87
-    
-    elif lati <= 50:
-        return lati * 0.76 + 3.1
-    
-    else:   # latitude > 50 deg.
-        return 40
-
-def automatic_dataset(lati, long, year):
-    """
-    Returns the optimal dataset based on location and year.
-    CM-SAF SARAH returned if location within "Europe/NA square"
-    and year between 2000-2015.
-    
-    "Europe/North Africa square" (lat,lon):
-        
-        (65,-11)        (65,44)
-        
-        
-        (24,-11)        (24,44)
-
-    Parameters
-    ----------
-    lati : flaot
-        Location latitude.
-    long : flaot
-        Location longitude.
-    year : int
-        Data year.
-
-    Returns
-    -------
-    str
-        Optimal dataset for given location and year.
-
-    """
-    if (lati <= 65 and lati >= 24) and (long <= 44 and long >= -11) and (year <= 2015 and year >= 2000):
-        return "sarah"
-    
-    else:
-        return "merra2"
-
 def pv_output(lati, long, capacity, year=2019,
               auto_dataset=True, dataset="merra2", system_loss=0, 
               auto_tilt=True, tilt=40, azim=180):
@@ -181,3 +110,74 @@ def pv_output(lati, long, capacity, year=2019,
     
     # return PV panel power output in Watts
     return [p_out * 1000 for p_out in data["electricity"].values.tolist()]
+
+def automatic_tilt(lati):
+    """
+    Original author: Stefan Pfenninger
+    As found at: https://github.com/renewables-ninja/gsee/blob/master/gsee/pv.py
+    
+    Stefan Pfenninger and Iain Staffell (2016).
+    Long-term patterns of European PV output using 30 years of 
+    validated hourly reanalysis and satellite data.
+    Energy 114, pp. 1251-1265. doi: 10.1016/j.energy.2016.08.060
+    
+    Returns optimal tilt angle for given latitude.
+    Works for latitudes between 0 and 50 deg, above 50 deg,
+    tilt is set to 40 deg.
+    Assumes panel is facing equator (azim = 180 deg)
+
+    Parameters
+    ----------
+    lati : flaot
+        Latitude in degrees.
+    
+    Returns
+    -------
+    float or int
+        Optimal tilt angle for equator facing panel in degrees.
+
+    """
+    lati = abs(lati)
+    
+    if lati <= 25:
+        return lati * 0.87
+    
+    elif lati <= 50:
+        return lati * 0.76 + 3.1
+    
+    else:  # latitude > 50 deg
+        return 40
+
+def automatic_dataset(lati, long, year):
+    """
+    Returns the optimal dataset based on location and year.
+    CM-SAF SARAH returned if location within "Europe/NA square"
+    and year between 2000-2015.
+    
+    "Europe/North Africa square" (lat,lon):
+        
+        (65,-11)        (65,44)
+        
+        
+        (24,-11)        (24,44)
+
+    Parameters
+    ----------
+    lati : flaot
+        Location latitude.
+    long : flaot
+        Location longitude.
+    year : int
+        Data year.
+
+    Returns
+    -------
+    str
+        Optimal dataset for given location and year.
+
+    """
+    if (lati <= 65 and lati >= 24) and (long <= 44 and long >= -11) and (year <= 2015 and year >= 2000):
+        return "sarah"
+    
+    else:
+        return "merra2"
