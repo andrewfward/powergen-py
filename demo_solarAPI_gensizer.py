@@ -58,6 +58,6 @@ g = gs.GenSizer(50, power_demand, output_pv_unit, solCost, battCost, genCost,
                 fuelCost, EbattMax_unit, EbattMin_unit, Pgen_unit, fuelReq,
                 timebreakerMax, autonomDaysMin)
 
-# optimise generation mix (and show animation)
+# optimise generation mix (animate=True for animation)
 max_iterations = 300
-g.optimise(max_iterations, animate=True, final_plot=False)
+g.optimise(max_iterations, animate=False, final_plot=False)
