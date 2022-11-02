@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Demo for Renewables.ninja API integration (with generation sizer PSO)
+    Demo for Renewables.ninja API integration (with generation sizer PSO)
 """
 import random
 

@@ -1,9 +1,9 @@
 # ignore excel files
-*.xlsx
-*.xls
+# *.xlsx
+# *.xls
 
 # ignore csv files
-*.csv
+# *.csv
 
 # ignore python cache
 __pycache__

@@ -213,8 +213,8 @@ class NetworkDesigner:
         x = [node.loc[0] for node in self.nodes]
         y = [node.loc[1] for node in self.nodes]
         
-        plt.figure(figsize=(10,10))
-        # plt.figure()
+        # plt.figure(figsize=(10,10))
+        plt.figure()
         plt.scatter(x[0],y[0],c="orange")  # source
         plt.scatter(x[1:],y[1:])  # nodes
         for i in range(len(x)):
@@ -229,8 +229,8 @@ class NetworkDesigner:
         if save == True:
             plt.savefig("initial layout", dpi=300)
         
-        plt.figure(figsize=(20,20))
-        # plt.figure()
+        # plt.figure(figsize=(20,20))
+        plt.figure()
         G = nx.Graph()
 
         # filter valid edges (value not 0 in final connection matrix)

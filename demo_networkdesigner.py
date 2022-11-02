@@ -6,10 +6,10 @@
 
 import time
 
-import numpy as np
-import matplotlib.pyplot as plt
+# import numpy as np
+# import matplotlib.pyplot as plt
 import network_designer as nd
-import networkx as nx
+# import networkx as nx
 
 t1 = time.time()
 

@@ -33,10 +33,10 @@ for idx,cluster in enumerate(clusterer.clusters):
     color = random.randint(0, 500)
     if idx == 0:
         plt.scatter(x,y,label="customers")  # customers
-        plt.scatter(x_c,y_c,c="black",marker="+",label="poles")  # pole
+        plt.scatter(x_c, y_c, c="black", marker="+", label="poles")  # type: ignore  # pole
     else:
         plt.scatter(x,y)  # customers
-        plt.scatter(x_c,y_c,c="black",marker="+")  # pole
+        plt.scatter(x_c, y_c, c="black", marker="+")  # type: ignore  # pole
 plt.title("Customer Clustering")
 plt.legend()
 plt.show()
