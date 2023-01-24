@@ -1,0 +1,26 @@
+from flask import Flask, request, render_template
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def cluster():
+    if request.method == 'POST':
+        network_voltage = float(request.form['Network Voltage'])
+        pole_cost = float(request.form['Pole Cost'])
+        pole_spacing = float(request.form['Pole Spacing'])
+        resistance_per_km = float(request.form['Resistance per km'])
+        current_rating = float(request.form['Current Rating'])
+        cost_per_km = float(request.form['Cost per km'])
+        max_voltage_drop = float(request.form['Max Voltage Drop'])
+
+        init_cluster = InitCluster.import_from_csv('customers.csv')
+        customer_clustering = CustomerClustering(init_cluster, network_voltage, pole_cost, pole_spacing, resistance_per_km, current_rating, cost_per_km, max_voltage_drop)
+        customer_clustering.process()
+
+        return render_template('cluster_results.html', clusters=customer_clustering.clusters)
+
+    return render_template('cluster.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
