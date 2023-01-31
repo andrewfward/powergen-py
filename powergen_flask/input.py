@@ -8,11 +8,12 @@
 
 """
 
-import functools
+import functools, os
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from powergen_flask.db import get_db
 
 # create a blueprint for implementing the customer clustering based on user inputs
 bp = Blueprint('input', __name__, url_prefix='/input')
@@ -27,6 +28,40 @@ def cluster():
         resistance_per_km = request.form['Resistance per km']
         current_rating = request.form['Current Rating']
         cost_per_km = request.form['Cost per km']
-        max_voltage_drop = request.form['Maximum voltage drop']
+        max_voltage_drop = request.form['Max Voltage Drop']
 
+        #add a way of reading from CSV file
+
+        error = None
+        db = get_db()
+
+        #upload CSV file into static folder
+
+        UPLOAD_FOLDER = 'static/files'
+        bp.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+        uploaded_file = request.form['nodes_csv']
+        if uploaded_file.filename != '':
+            file_path = os.path.join(bp.config['UPLOAD_FOLDER'], uploaded_file.filename)
+            # set the file path
+            uploaded_file.save(file_path)
+        # save the file
+
+        #inserts relevent info into database
+        if error is None:
+            try:
+                db.execute(
+                    "INSERT INTO inputs (network_voltage, pole_cost, pole_spacing, resistance_per_km, current_rating, cost_per_km, max_voltage_drop) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (network_voltage, pole_cost, pole_spacing, resistance_per_km, current_rating, cost_per_km, max_voltage_drop),
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = "Integrity Error!"
+            else:
+                return render_template('input/cluster_results.html')
+
+        #add a way of inserting these values from the SQLite database into the Clustering Subsystem
     return render_template('input/cluster.html')
+
+def uploadCSV():
+
+      return re
