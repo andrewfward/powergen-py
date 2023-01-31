@@ -18,6 +18,7 @@ from powergen_flask.db import get_db
 # create a blueprint for implementing the customer clustering based on user inputs
 bp = Blueprint('input', __name__, url_prefix='/input')
 
+
 @bp.route('/cluster', methods=('GET', 'POST'))
 # this function takes inputs based on the parameters of the CustomerClustering.py class
 def cluster():
@@ -30,28 +31,24 @@ def cluster():
         cost_per_km = request.form['Cost per km']
         max_voltage_drop = request.form['Max Voltage Drop']
 
-        #add a way of reading from CSV file
-
         error = None
         db = get_db()
 
-        #upload CSV file into static folder
-
-        UPLOAD_FOLDER = 'static/files'
-        bp.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-        uploaded_file = request.form['nodes_csv']
-        if uploaded_file.filename != '':
-            file_path = os.path.join(bp.config['UPLOAD_FOLDER'], uploaded_file.filename)
+        # upload CSV file into static folder
+        csv_file = request.files['CSV File']
+        if csv_file.filename != '':
             # set the file path
-            uploaded_file.save(file_path)
-        # save the file
+            file_path = os.path.join('powergen_flask/static/files', csv_file.filename)
+            # save the file
+            csv_file.save(file_path)
 
-        #inserts relevent info into database
+        # inserts relevant info into database
         if error is None:
             try:
                 db.execute(
                     "INSERT INTO inputs (network_voltage, pole_cost, pole_spacing, resistance_per_km, current_rating, cost_per_km, max_voltage_drop) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (network_voltage, pole_cost, pole_spacing, resistance_per_km, current_rating, cost_per_km, max_voltage_drop),
+                    (network_voltage, pole_cost, pole_spacing, resistance_per_km, current_rating, cost_per_km,
+                     max_voltage_drop),
                 )
                 db.commit()
             except db.IntegrityError:
@@ -59,9 +56,5 @@ def cluster():
             else:
                 return render_template('input/cluster_results.html')
 
-        #add a way of inserting these values from the SQLite database into the Clustering Subsystem
+        # add a way of inserting these values from the SQLite database into the Clustering Subsystem
     return render_template('input/cluster.html')
-
-def uploadCSV():
-
-      return re

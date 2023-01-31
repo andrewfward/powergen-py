@@ -12,6 +12,7 @@ import customer_clustering as cc
 
 import matplotlib.pyplot as plt
 
+
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     # instance_relative_config tells Flask that filenames are relative to the instance folder
@@ -38,7 +39,7 @@ def create_app(test_config=None):
     def hello():
         return 'Welcome to PowerGen GUI'
 
-    #registering the input blueprint from the app factory
+    # registering the input blueprint from the app factory
     from . import input, db
     app.register_blueprint(input.bp)
     db.init_app(app)
