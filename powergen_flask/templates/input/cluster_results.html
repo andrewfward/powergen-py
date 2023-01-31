@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Cluster Results{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <table>
+    <thead>
+      <tr>
+        <th>Cluster ID</th>
+        <th>Number of Customers</th>
+        <th>Centroid</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cluster in clusters %}
+        <tr>
+          <td>{{ cluster.cluster_id }}</td>
+          <td>{{ cluster.num_customers }}</td>
+          <td>{{ cluster.centroid }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
