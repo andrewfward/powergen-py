@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Began implementation of Customer Clustering subsystem within Flask">
+    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Completed CSV upload mechanism - still needs a way of reading to database">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer_clustering.py" beforeDir="false" afterPath="$PROJECT_DIR$/customer_clustering.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/powergen_flask/input.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/input.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/cluster.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/cluster.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/cluster_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/cluster_results.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +50,7 @@
       <recent name="C:\Users\warda\PycharmProjects\powergen-py\instance" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.demo_solarAPI_gensizer">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -153,7 +154,16 @@
       <option name="presentableId" value="Default" />
       <updated>1667413295187</updated>
       <workItem from="1667413296890" duration="598000" />
+      <workItem from="1675344381891" duration="6065000" />
     </task>
+    <task id="LOCAL-00001" summary="Completed CSV upload mechanism - still needs a way of reading to database">
+      <created>1675185560592</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1675185560592</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -169,6 +179,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Completed CSV upload mechanism - still needs a way of reading to database" />
+    <option name="LAST_COMMIT_MESSAGE" value="Completed CSV upload mechanism - still needs a way of reading to database" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/powergen_py$input.coverage" NAME="input Coverage Results" MODIFIED="1675183716192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/powergen_flask" />

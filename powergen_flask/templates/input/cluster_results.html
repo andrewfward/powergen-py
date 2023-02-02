@@ -21,7 +21,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for cluster in clusters %}
+      {% for idx, cluster in enumerate(cluster.clusters) %}
         <tr>
           <td>{{ cluster.cluster_id }}</td>
           <td>{{ cluster.num_customers }}</td>

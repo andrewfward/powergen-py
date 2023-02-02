@@ -127,7 +127,7 @@ class CustomerClustering:
         # read csv file as pandas dataframe
         df = pd.read_csv(str(filename))
         df = df.set_index("ID")
-        
+
         # import customers and create initial single cluster
         customers = []
         for customer_id,data in df.iteritems():
