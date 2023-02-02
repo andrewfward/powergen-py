@@ -11,6 +11,13 @@
         <th>Cluster ID</th>
         <th>Number of Customers</th>
         <th>Centroid</th>
+         <th>Network Volatge</th>
+        <th>Pole Cost</th>
+        <th>Pole Spacing</th>
+        <th>Resistance Per Km</th>
+        <th>Current Rating</th>
+        <th>Cost Per Km</th>
+        <th>Max Voltage Drop</th>
       </tr>
     </thead>
     <tbody>
@@ -19,6 +26,13 @@
           <td>{{ cluster.cluster_id }}</td>
           <td>{{ cluster.num_customers }}</td>
           <td>{{ cluster.centroid }}</td>
+          <td>{{ cluster.network_voltage}}</td>
+          <td>{{ cluster.pole_cost }}</td>
+          <td>{{ cluster.pole_spacing }}</td>
+          <td>{{ cluster.resistance_per_km }}</td>
+          <td>{{ cluster.current_rating }}</td>
+          <td>{{ cluster.cost_per_km }}</td>
+          <td>{{ cluster.max_voltage_drop }}</td>
         </tr>
       {% endfor %}
     </tbody>
