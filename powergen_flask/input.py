@@ -15,6 +15,7 @@ import customer_clustering as cc
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+
 from powergen_flask.db import get_db
 
 # create a blueprint for implementing the customer clustering based on user inputs
