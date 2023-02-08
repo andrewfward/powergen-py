@@ -37,7 +37,6 @@ function initMap() {
             addMarker();
             // testMarker();
         });
-
     }
 
 function testMarker() {
