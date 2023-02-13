@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Implemented Alfredo's readfromcsv function in Flask">
+    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Formalised the MappingTest a bit. Experimented with adding user-defined coordinates to the map.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/input.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/input.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/cluster_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/cluster_results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/customer_clustering.py" beforeDir="false" afterPath="$PROJECT_DIR$/customer_clustering.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/input.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/user_input.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/cluster.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/input.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/cluster_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/results.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
   </component>
   <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
     <envs>
@@ -33,23 +45,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/warda/OneDrive/Documents/GitHub/powergen-py",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/warda/PycharmProjects/powergen-py/MappingTest/static&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\warda\PycharmProjects\powergen-py\MappingTest\static" />
+      <recent name="C:\Users\warda\PycharmProjects\powergen-py\MappingTest" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\warda\PycharmProjects\powergen-py\powergen_flask\templates\input" />
+      <recent name="C:\Users\warda\PycharmProjects\powergen-py\powergen_flask\templates" />
       <recent name="C:\Users\warda\PycharmProjects\powergen-py\powergen_flask\static" />
       <recent name="C:\Users\warda\PycharmProjects\powergen-py\powergen_flask" />
       <recent name="C:\Users\warda\PycharmProjects\powergen-py\instance" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.demo_solarAPI_gensizer">
+  <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -155,6 +174,9 @@
       <workItem from="1667413296890" duration="598000" />
       <workItem from="1675344381891" duration="9212000" />
       <workItem from="1675718542000" duration="57000" />
+      <workItem from="1675774010651" duration="13572000" />
+      <workItem from="1675959676435" duration="4039000" />
+      <workItem from="1676309815526" duration="7549000" />
     </task>
     <task id="LOCAL-00001" summary="Completed CSV upload mechanism - still needs a way of reading to database">
       <created>1675185560592</created>
@@ -170,7 +192,21 @@
       <option name="project" value="LOCAL" />
       <updated>1675354507687</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Broke up map.html into html and js elements. Added a way of inputting coordinates and producing a pin. However it is erased when the page is refreshed">
+      <created>1675784461176</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1675784461176</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Formalised the MappingTest a bit. Experimented with adding user-defined coordinates to the map.">
+      <created>1675862198961</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1675862198961</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -190,10 +226,55 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Completed CSV upload mechanism - still needs a way of reading to database" />
     <MESSAGE value="Implemented Alfredo's readfromcsv function in Flask" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implemented Alfredo's readfromcsv function in Flask" />
+    <MESSAGE value="Broke up map.html into html and js elements. Added a way of inputting coordinates and producing a pin. However it is erased when the page is refreshed" />
+    <MESSAGE value="Formalised the MappingTest a bit. Experimented with adding user-defined coordinates to the map." />
+    <option name="LAST_COMMIT_MESSAGE" value="Formalised the MappingTest a bit. Experimented with adding user-defined coordinates to the map." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/demo_all_subsystems.py</url>
+          <line>61</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/demo_all_subsystems.py</url>
+          <line>64</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/demo_all_subsystems.py</url>
+          <line>67</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/demo_customerclustering.py</url>
+          <line>31</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/demo_customerclustering.py</url>
+          <line>23</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/demo_customerclustering.py</url>
+          <line>26</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="nodes" language="Python" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/powergen_py$input.coverage" NAME="input Coverage Results" MODIFIED="1675183716192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/powergen_flask" />
-    <SUITE FILE_PATH="coverage/powergen_py$demo_all_subsystems.coverage" NAME="demo_all_subsystems Coverage Results" MODIFIED="1674752218284" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/powergen_py$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1675785218781" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/MappingTest" />
+    <SUITE FILE_PATH="coverage/powergen_py$demo_all_subsystems.coverage" NAME="demo_all_subsystems Coverage Results" MODIFIED="1676325885358" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/powergen_py$demo_customerclustering.coverage" NAME="demo_customerclustering Coverage Results" MODIFIED="1676327129145" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

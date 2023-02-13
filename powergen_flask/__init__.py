@@ -40,7 +40,7 @@ def create_app(test_config=None):
         return 'Welcome to PowerGen GUI'
 
     # registering the input blueprint from the app factory
-    from . import input, db
-    app.register_blueprint(input.bp)
+    from . import user_input, db
+    app.register_blueprint(user_input.bp)
     db.init_app(app)
     return app

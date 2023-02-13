@@ -10,3 +10,7 @@ CREATE TABLE IF NOT EXISTS inputs (
     max_voltage_drop REAL NOT NULL,
     file_path TEXT NOT NULL
     );
+
+DROP TABLE IF EXISTS clusterResults (
+
+    );

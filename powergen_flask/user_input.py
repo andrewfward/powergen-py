@@ -11,6 +11,7 @@
 import functools, os
 import pandas as pd
 import customer_clustering as cc
+import network_designer as nd
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -19,12 +20,16 @@ from flask import (
 from powergen_flask.db import get_db
 
 # create a blueprint for implementing the customer clustering based on user inputs
-bp = Blueprint('input', __name__, url_prefix='/input')
+bp = Blueprint('user_input', __name__)
+
+# Defining Source Node Location for Testing Purposes ONLY - this should become user defined (in Latitude and
+# Longitude) at a later date
+source_location = (135, -150)
 
 
-@bp.route('/cluster', methods=('GET', 'POST'))
+@bp.route('/user_input', methods=('GET', 'POST'))
 # this function takes inputs based on the parameters of the CustomerClustering.py class
-def cluster():
+def user_input():
     if request.method == 'POST':
         network_voltage = float(request.form['Network Voltage'])
         pole_cost = float(request.form['Pole Cost'])
@@ -44,6 +49,8 @@ def cluster():
             file_path = os.path.join('powergen_flask/static/files', csv_file.filename)
             # save the file
             csv_file.save(file_path)
+
+            # it would be best practice to insert the coordinates into the database for easier retrieval etc.
 
         # inserts relevant info into database
         if error is None:
@@ -70,13 +77,39 @@ def cluster():
                     cost_per_km=cost_per_km,
                     max_voltage_drop=max_voltage_drop
                 )
+                # The following code is adapted from AS's demo_all_subsystems.py file
+                # STEP 1: CLUSTER THE CUSTOMERS TOGETHER
+                clusterer.cluster()
 
-                clusterer.cluster(max_customers=6)
+                # retrieve clusters - these are the nodes used in the network designer
+                nodes = clusterer.clusters
 
-                return render_template('input/cluster_results.html')
-    return render_template('input/cluster.html')
+                # STEP 2 - RETICULATION DESIGN
+                # get locations and power demands of each node (cluster objects)
+                nodes_locs = [node.position for node in nodes]
+                nodes_Pdem = [node.Pdem_total for node in nodes]
+                # nodes power demands is a list of arrays - each array is yearly demand for single node
+
+                # create designer object with defined network parameters and nodes
+                designer = nd.NetworkDesigner(
+                    source_location,
+                    nodes_locs,
+                    nodes_Pdem,
+                    network_voltage,
+                    pole_cost,
+                    pole_spacing,
+                    resistance_per_km,
+                    current_rating,
+                    cost_per_km
+                )
+
+                # build the actual network
+                designer.build_network()
 
 
+
+                return render_template('input/results.html')
+    return render_template('input/input.html')
 
 # Parsing the CSV File CG
 # def parseCSV(filePath):

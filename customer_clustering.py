@@ -121,7 +121,7 @@ class CustomerClustering:
         Returns
         -------
         CustomerClustering
-            CustoemrClustering object is returned with given parameters.
+            CustomerClustering object is returned with given parameters.
 
         """
         # read csv file as pandas dataframe
