@@ -34,6 +34,8 @@ dist/
 build/
 *.egg-info/
 
+*.xml
+
 # User-specific stuff
 # PyCharm-related files
 .idea/**/workspace.xml
