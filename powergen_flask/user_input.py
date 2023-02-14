@@ -22,10 +22,6 @@ from powergen_flask.db import get_db
 # create a blueprint for implementing the customer clustering based on user inputs
 bp = Blueprint('user_input', __name__)
 
-# Defining Source Node Location for Testing Purposes ONLY - this should become user defined (in Latitude and
-# Longitude) at a later date
-source_location = (135, -150)
-
 
 @bp.route('/user_input', methods=('GET', 'POST'))
 # this function takes inputs based on the parameters of the CustomerClustering.py class
@@ -105,8 +101,6 @@ def user_input():
 
                 # build the actual network
                 designer.build_network()
-
-
 
                 return render_template('input/results.html')
     return render_template('input/input.html')

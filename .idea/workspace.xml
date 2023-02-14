@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Formalised the MappingTest a bit. Experimented with adding user-defined coordinates to the map.">
+    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Renamed some files for more clarity. Made a start on implementing more of the PowerGen tool into user_input.py previously called cluster.py">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/customer_clustering.py" beforeDir="false" afterPath="$PROJECT_DIR$/customer_clustering.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/input.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/user_input.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/cluster.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/input.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/cluster_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/input.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/input.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/user_input.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/user_input.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +64,7 @@
       <recent name="C:\Users\warda\PycharmProjects\powergen-py\instance" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.demo_solarAPI_gensizer">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -176,7 +172,8 @@
       <workItem from="1675718542000" duration="57000" />
       <workItem from="1675774010651" duration="13572000" />
       <workItem from="1675959676435" duration="4039000" />
-      <workItem from="1676309815526" duration="7549000" />
+      <workItem from="1676309815526" duration="7728000" />
+      <workItem from="1676380779636" duration="853000" />
     </task>
     <task id="LOCAL-00001" summary="Completed CSV upload mechanism - still needs a way of reading to database">
       <created>1675185560592</created>
@@ -206,7 +203,14 @@
       <option name="project" value="LOCAL" />
       <updated>1675862198961</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Renamed some files for more clarity. Made a start on implementing more of the PowerGen tool into user_input.py previously called cluster.py">
+      <created>1676327733528</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1676327733528</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -228,7 +232,8 @@
     <MESSAGE value="Implemented Alfredo's readfromcsv function in Flask" />
     <MESSAGE value="Broke up map.html into html and js elements. Added a way of inputting coordinates and producing a pin. However it is erased when the page is refreshed" />
     <MESSAGE value="Formalised the MappingTest a bit. Experimented with adding user-defined coordinates to the map." />
-    <option name="LAST_COMMIT_MESSAGE" value="Formalised the MappingTest a bit. Experimented with adding user-defined coordinates to the map." />
+    <MESSAGE value="Renamed some files for more clarity. Made a start on implementing more of the PowerGen tool into user_input.py previously called cluster.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="Renamed some files for more clarity. Made a start on implementing more of the PowerGen tool into user_input.py previously called cluster.py" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
