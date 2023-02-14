@@ -12,6 +12,9 @@ import functools, os
 import pandas as pd
 import customer_clustering as cc
 import network_designer as nd
+import gensizer as gs
+import random
+import pvoutput as pv
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -22,11 +25,25 @@ from powergen_flask.db import get_db
 # create a blueprint for implementing the customer clustering based on user inputs
 bp = Blueprint('user_input', __name__)
 
+# This should be user defined - in latitude/longitude or by clicking
+source_location = (135, -150)
+
+# coordinates for Jiboro in The Gambia - should also be user defined - all they are used for at the moment is the
+# Renewables.Ninja API query
+latitude = 13.17
+longitude = -16.57
+
+# will create a generation sizer object with 50 particles
+num_particles = 50
+
+# what is this? have decided to leave it out of the form for now
+timebreakerMax = 0
 
 @bp.route('/user_input', methods=('GET', 'POST'))
 # this function takes inputs based on the parameters of the CustomerClustering.py class
 def user_input():
     if request.method == 'POST':
+        # Parameters for Customer Clustering
         network_voltage = float(request.form['Network Voltage'])
         pole_cost = float(request.form['Pole Cost'])
         pole_spacing = float(request.form['Pole Spacing'])
@@ -34,6 +51,20 @@ def user_input():
         current_rating = float(request.form['Current Rating'])
         cost_per_km = float(request.form['Cost per km'])
         max_voltage_drop = float(request.form['Max Voltage Drop'])
+
+        # Parameters for Generation Sizer
+        num_particles = float(request.form['Number of Particles'])
+        pv_capacity = float(request.form['PV Panel Capacity'])
+        solCost = float(request.form['PV Panel Cost'])
+        battCost = float(request.form['Battery Cost'])
+        genCost = float(request.form['Diesel Generator Cost'])
+        fuelCost = float(request.form['Fuel Cost'])
+        EbattMax_unit = float(request.form['Max Battery Energy'])
+        EbattMin_unit = float(request.form['Min Battery Energy'])
+        Pgen_unit = float(request.form['Diesel Generator Rated Power'])
+        fuelReq = float(request.form['Fuel Requirement'])
+        timebreakerMax = int(request.form['Required Days of Autonomy'])
+        autonomDaysMin = int(request.form['Required Days of Autonomy'])
 
         error = None
         db = get_db()
@@ -101,6 +132,46 @@ def user_input():
 
                 # build the actual network
                 designer.build_network()
+
+                # STEP 3 - RETRIEVING ESTIMATED PV OUTPUT
+
+                # rng seed
+                random.seed(420)
+
+                # total power demand is sum of all cluster (node) demands
+                total_Pdem = 0
+                for pdem in nodes_Pdem:
+                    total_Pdem += pdem
+                # make yearly profile from daily profile
+                total_Pdem = list(total_Pdem) * 365
+
+                # retrieve estimated single PV panel output
+                output_pv_unit = pv.pv_output(
+                    latitude,
+                    longitude,
+                    pv_capacity,
+                    year=2019,
+                    auto_dataset=True,
+                    auto_tilt=True
+                )
+
+                # STEP 4 - OPTIMISE GENERATION MIX WITH GENSIZER
+
+                sizer = gs.GenSizer(
+                    num_particles,
+                    total_Pdem,
+                    output_pv_unit,
+                    solCost,
+                    battCost,
+                    genCost,
+                    fuelCost,
+                    EbattMax_unit,
+                    EbattMin_unit,
+                    Pgen_unit,
+                    fuelReq,
+                    timebreakerMax,
+                    autonomDaysMin
+                )
 
                 return render_template('input/results.html')
     return render_template('input/input.html')

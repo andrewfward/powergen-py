@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Renamed some files for more clarity. Made a start on implementing more of the PowerGen tool into user_input.py previously called cluster.py">
+    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Updated .gitignore with Pycharm workspace files and started to make a new form">
+      <change afterPath="$PROJECT_DIR$/powergen_flask/static/tabs.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/static/style.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/input.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/input.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/powergen_flask/user_input.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/user_input.py" afterDir="false" />
     </list>
@@ -173,7 +175,7 @@
       <workItem from="1675774010651" duration="13572000" />
       <workItem from="1675959676435" duration="4039000" />
       <workItem from="1676309815526" duration="7728000" />
-      <workItem from="1676380779636" duration="853000" />
+      <workItem from="1676380779636" duration="5366000" />
     </task>
     <task id="LOCAL-00001" summary="Completed CSV upload mechanism - still needs a way of reading to database">
       <created>1675185560592</created>
@@ -210,7 +212,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676327733528</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Updated .gitignore with Pycharm workspace files and started to make a new form">
+      <created>1676381770516</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1676381770516</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -233,7 +242,8 @@
     <MESSAGE value="Broke up map.html into html and js elements. Added a way of inputting coordinates and producing a pin. However it is erased when the page is refreshed" />
     <MESSAGE value="Formalised the MappingTest a bit. Experimented with adding user-defined coordinates to the map." />
     <MESSAGE value="Renamed some files for more clarity. Made a start on implementing more of the PowerGen tool into user_input.py previously called cluster.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Renamed some files for more clarity. Made a start on implementing more of the PowerGen tool into user_input.py previously called cluster.py" />
+    <MESSAGE value="Updated .gitignore with Pycharm workspace files and started to make a new form" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated .gitignore with Pycharm workspace files and started to make a new form" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
