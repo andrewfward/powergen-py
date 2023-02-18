@@ -144,7 +144,7 @@ class CustomerClustering:
     
     @classmethod
     def import_from_OTHER(cls):
-        
+        # method that will produce customers (with their respective locations and power demands) from Map
         # PLACEHOLDER
         pass
     
