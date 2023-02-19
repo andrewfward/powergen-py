@@ -39,6 +39,7 @@ num_particles = 50
 # what is this? have decided to leave it out of the form for now
 timebreakerMax = 0
 
+
 @bp.route('/user_input', methods=('GET', 'POST'))
 # this function takes inputs based on the parameters of the CustomerClustering.py class
 def user_input():
@@ -53,7 +54,7 @@ def user_input():
         max_voltage_drop = float(request.form['Max Voltage Drop'])
 
         # Parameters for Generation Sizer
-        num_particles = float(request.form['Number of Particles'])
+        num_particles = int(request.form['Number of Particles'])
         pv_capacity = float(request.form['PV Panel Capacity'])
         solCost = float(request.form['PV Panel Cost'])
         battCost = float(request.form['Battery Cost'])
@@ -172,29 +173,11 @@ def user_input():
                     timebreakerMax,
                     autonomDaysMin
                 )
-
-                return render_template('input/results.html')
+                # this redirect takes the user to the next page, for which the redirect is defined below
+                return redirect(url_for('user_input.results'))
     return render_template('input/input.html')
 
-# Parsing the CSV File CG
-# def parseCSV(filePath):
-#     # CVS Column Names
-#     col_names = ['network voltage','pole cost' , 'pole spacing', 'resistance per_km' ,'current rating' , 'cost per km','max voltage_drop' ]
-#     # Use Pandas to parse the CSV file
-#     csvData = pd.read_csv(filePath, names=col_names, header=None)
-#     # Loop through the Rows
-#     for i, row in csvData.iterrows():
-#         print(i, row ['network_voltage'], row['pole_cost'], row['pole_spacing'], row['resistance_per_km'],row['current_rating'],row[' cost_per_km'],row['max_voltage_drop'])
-#
-# import mysql.connector
-#
-# mydb = mysql.connector.connect(
-#   host="localhost",
-#   user="root",
-#   password="",
-#   database="PowerGen"#
-# )
-#
-# def parseCSV(file_path):
-#     # CSV Column Names
-#     col_names
+
+@bp.route('/user_input/results', methods=('GET','POST'))
+def results():
+    return render_template('input/results.html')

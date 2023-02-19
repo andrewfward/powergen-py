@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS inputs (
     file_path TEXT NOT NULL
     );
 
-DROP TABLE IF EXISTS clusterResults (
+DROP TABLE IF EXISTS clusterResults;
+CREATE TABLE IF NOT EXISTS clusterResults(
 
-    );
+);

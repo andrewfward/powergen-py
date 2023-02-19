@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Continuing to update the flask app to include full powergen functionality">
+    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Working Front End form!!">
+      <change afterPath="$PROJECT_DIR$/powergen_flask/static/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/customer_clustering.py" beforeDir="false" afterPath="$PROJECT_DIR$/customer_clustering.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/static/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/input.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/input.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/results.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/powergen_flask/user_input.py" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/user_input.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,18 +43,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/warda/PycharmProjects/powergen-py/MappingTest/static&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/warda/PycharmProjects/powergen-py/powergen_flask/static",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\warda\PycharmProjects\powergen-py\powergen_flask\static" />
       <recent name="C:\Users\warda\PycharmProjects\powergen-py\MappingTest\static" />
       <recent name="C:\Users\warda\PycharmProjects\powergen-py\MappingTest" />
     </key>
@@ -65,7 +67,7 @@
       <recent name="C:\Users\warda\PycharmProjects\powergen-py\instance" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.demo_solarAPI_gensizer">
+  <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -176,7 +178,7 @@
       <workItem from="1676309815526" duration="7728000" />
       <workItem from="1676380779636" duration="6053000" />
       <workItem from="1676563546369" duration="3915000" />
-      <workItem from="1676736761672" duration="2012000" />
+      <workItem from="1676736761672" duration="7392000" />
     </task>
     <task id="LOCAL-00001" summary="Completed CSV upload mechanism - still needs a way of reading to database">
       <created>1675185560592</created>
@@ -227,7 +229,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676386244880</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Working Front End form!!">
+      <created>1676739026592</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1676739026592</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -252,7 +261,8 @@
     <MESSAGE value="Renamed some files for more clarity. Made a start on implementing more of the PowerGen tool into user_input.py previously called cluster.py" />
     <MESSAGE value="Updated .gitignore with Pycharm workspace files and started to make a new form" />
     <MESSAGE value="Continuing to update the flask app to include full powergen functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="Continuing to update the flask app to include full powergen functionality" />
+    <MESSAGE value="Working Front End form!!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working Front End form!!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -297,7 +307,8 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/powergen_py$input.coverage" NAME="input Coverage Results" MODIFIED="1675183716192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/powergen_flask" />
-    <SUITE FILE_PATH="coverage/powergen_py$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1675785218781" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/MappingTest" />
+    <SUITE FILE_PATH="coverage/powergen_py$app.coverage" NAME="app Coverage Results" MODIFIED="1676823964940" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/MappingTest2" />
+    <SUITE FILE_PATH="coverage/powergen_py$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1676824077605" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/powergen_flask" />
     <SUITE FILE_PATH="coverage/powergen_py$demo_all_subsystems.coverage" NAME="demo_all_subsystems Coverage Results" MODIFIED="1676325885358" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/powergen_py$demo_customerclustering.coverage" NAME="demo_customerclustering Coverage Results" MODIFIED="1676327129145" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>

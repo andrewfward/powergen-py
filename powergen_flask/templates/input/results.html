@@ -1,41 +1,28 @@
 {% extends 'base.html' %}
 
+<head>
+    <meta charset="UTF-8">
+  <title>Google Maps API Example</title>
+  <style>
+    #map {
+      height: 100%;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
 {% block header %}
-  <h1>{% block title %}Cluster Results{% endblock %}</h1>
+  <h1>{% block title %}Microgrid Design Results{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-  <table>
-    <thead>
-      <tr>
-        <th>Cluster ID</th>
-        <th>Number of Customers</th>
-        <th>Centroid</th>
-         <th>Network Volatge</th>
-        <th>Pole Cost</th>
-        <th>Pole Spacing</th>
-        <th>Resistance Per Km</th>
-        <th>Current Rating</th>
-        <th>Cost Per Km</th>
-        <th>Max Voltage Drop</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for cluster in clusters %}
-        <tr>
-          <!-- Replace these with more relevant values -->
-          <td>{{ cluster.cluster_id }}</td>
-          <td>{{ cluster.num_customers }}</td>
-          <td>{{ cluster.centroid }}</td>
-          <td>{{ cluster.network_voltage}}</td>
-          <td>{{ cluster.pole_cost }}</td>
-          <td>{{ cluster.pole_spacing }}</td>
-          <td>{{ cluster.resistance_per_km }}</td>
-          <td>{{ cluster.current_rating }}</td>
-          <td>{{ cluster.cost_per_km }}</td>
-          <td>{{ cluster.max_voltage_drop }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<body>
+  <div id="map"></div>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGglDZclaYdJ-wIAe4rsjU3DFOf2zvvNY&callback=initMap" async defer></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
 {% endblock %}
