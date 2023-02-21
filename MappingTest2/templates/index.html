@@ -12,14 +12,35 @@
       margin: 0;
       padding: 0;
     }
+     #heading {
+      font-family: "Helvetica Neue", sans-serif;
+      color: green;
+      background-color: #C4E4F4;;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    #heading h1 {
+      margin: 0;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
   </style>
 </head>
 <body>
+  <div id="heading">
+    <h1>Powergen Mapping Tool</h1>
+  </div>
   <div id="map"></div>
-  <!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGglDZclaYdJ-wIAe4rsjU3DFOf2zvvNY&callback=initMap"-->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGglDZclaYdJ-wIAe4rsjU3DFOf2zvvNY&callback=initMap" async defer></script>
-
-          async defer></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
+
+
+
