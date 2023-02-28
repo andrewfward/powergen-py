@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% block header %}
   <h1>{% block title %}Microgrid Design Results{% endblock %}</h1>
-
 {% endblock %}
 
 {% block content %}
@@ -15,8 +14,6 @@
     margin: 0;
     padding: 0;
   }
-
-
 </style>
 
 <body>
@@ -27,6 +24,6 @@
 
 {% for x in nodes_locs %}
 {{x}}<br>
-<script src="{{ url_for('static', filename='app.js') }}">addMarker({lat:10, lng:66})</script>
+<script>addMarker({{x}}.latLng)</script>
 {% endfor %}
 {% endblock %}
