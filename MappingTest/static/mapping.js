@@ -1,3 +1,14 @@
+//
+//
+// GUI Implementation - Testing Mapping Function
+//
+// "Energy For Development" VIP (University of Strathclyde)
+//
+// Code by Finlay Muir and Christopher Gibson
+//
+//
+//
+
 var map;
 
 function initMap() {
