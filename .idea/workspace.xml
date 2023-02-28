@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Working Front End form!!">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/powergen-py.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/powergen-py.iml" afterDir="false" />
+    <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Updated Mapping Test">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MappingTest/static/mapping.js" beforeDir="false" afterPath="$PROJECT_DIR$/MappingTest/static/mapping.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MappingTest2/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/MappingTest2/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MappingTest2/static/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/MappingTest2/static/css/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MappingTest2/static/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/MappingTest2/static/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MappingTest2/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/MappingTest2/templates/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +49,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -187,6 +191,13 @@
       <workItem from="1676736761672" duration="7392000" />
       <workItem from="1676924788239" duration="589000" />
       <workItem from="1676925402889" duration="273000" />
+      <workItem from="1676925772010" duration="917000" />
+      <workItem from="1676926716032" duration="2009000" />
+      <workItem from="1676977436660" duration="1587000" />
+      <workItem from="1677150457963" duration="3690000" />
+      <workItem from="1677529029797" duration="3134000" />
+      <workItem from="1677533291165" duration="1089000" />
+      <workItem from="1677574382553" duration="757000" />
     </task>
     <task id="LOCAL-00001" summary="Completed CSV upload mechanism - still needs a way of reading to database">
       <created>1675185560592</created>
@@ -244,7 +255,21 @@
       <option name="project" value="LOCAL" />
       <updated>1676739026592</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Working Front End form!!">
+      <created>1676926004141</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1676926004141</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Updated Mapping Test">
+      <created>1676926075563</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1676926075563</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -270,7 +295,8 @@
     <MESSAGE value="Updated .gitignore with Pycharm workspace files and started to make a new form" />
     <MESSAGE value="Continuing to update the flask app to include full powergen functionality" />
     <MESSAGE value="Working Front End form!!" />
-    <option name="LAST_COMMIT_MESSAGE" value="Working Front End form!!" />
+    <MESSAGE value="Updated Mapping Test" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated Mapping Test" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
