@@ -20,6 +20,12 @@ function initMap() {
     addMarker(event.latLng);
   });
 
+  google.maps.event.addListener(map, "bounds_changed", (event) => {
+    // addMarker({{x}}.latLng)
+    // {% for x in nodes_locs %}
+    // {% endfor %}
+    //});
+
   function addMarker(location) {
     let marker = new google.maps.Marker({
       position: location,

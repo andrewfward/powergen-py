@@ -8,7 +8,7 @@
 
 """
 
-import functools, os
+import functools, os, json
 import pandas as pd
 import customer_clustering as cc
 import network_designer as nd
@@ -17,7 +17,7 @@ import random
 import pvoutput as pv
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 )
 
 from powergen_flask.db import get_db
@@ -118,6 +118,9 @@ def user_input():
                 nodes_Pdem = [node.Pdem_total for node in nodes]
                 # nodes power demands is a list of arrays - each array is yearly demand for single node
 
+                # getting the nodes positions into a JSON friendly file format
+                # nodes_locs_json = json.dumps(nodes_locs)
+
                 # create designer object with defined network parameters and nodes
                 designer = nd.NetworkDesigner(
                     source_location,
@@ -174,10 +177,17 @@ def user_input():
                     autonomDaysMin
                 )
                 # this redirect takes the user to the next page, for which the redirect is defined below
-                return redirect(url_for('user_input.results'))
+                # return redirect(url_for('user_input.results'))
+                # return jsonify(nodes_locs)#, nodes_locs_json
+                return render_template('input/results.html', nodes_locs=nodes_locs)
     return render_template('input/input.html')
 
 
-@bp.route('/user_input/results', methods=('GET','POST'))
-def results():
-    return render_template('input/results.html')
+# @bp.route('/user_input/results', methods=('GET','POST'))
+# def results():
+#     return render_template('input/results.html')
+
+@bp.route('/user_input/jsontest', methods=('GET', 'POST'))
+def jsontest():
+    nodes = [(1, 1), (93, 5), (56, 66)]
+    return jsonify(nodes)

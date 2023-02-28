@@ -1,28 +1,32 @@
 {% extends 'base.html' %}
-
-<head>
-    <meta charset="UTF-8">
-  <title>Google Maps API Example</title>
-  <style>
-    #map {
-      height: 100%;
-    }
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
-</head>
-
 {% block header %}
   <h1>{% block title %}Microgrid Design Results{% endblock %}</h1>
+
 {% endblock %}
 
 {% block content %}
+
+<style>
+  #map {
+    height: 100%;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+
+</style>
+
 <body>
-  <div id="map"></div>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGglDZclaYdJ-wIAe4rsjU3DFOf2zvvNY&callback=initMap" async defer></script>
-  <script src="{{ url_for('static', filename='app.js') }}"></script>
+<div id="map"></div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGglDZclaYdJ-wIAe4rsjU3DFOf2zvvNY&callback=initMap" async defer></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
+
+{% for x in nodes_locs %}
+{{x}}<br>
+<script src="{{ url_for('static', filename='app.js') }}">addMarker({lat:10, lng:66})</script>
+{% endfor %}
 {% endblock %}
