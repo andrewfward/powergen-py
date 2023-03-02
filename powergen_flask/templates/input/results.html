@@ -16,14 +16,35 @@
   }
 </style>
 
-<body>
+<body onload="initMap()">
 <div id="map"></div>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGglDZclaYdJ-wIAe4rsjU3DFOf2zvvNY&callback=initMap" async defer></script>
-<script src="{{ url_for('static', filename='app.js') }}"></script>
+<script>
+  function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: {lat: 51.5074, lng: 0.1278},
+      zoom: 8,
+    });
+    addPoints();
+  }
+
+  function addPoints() {
+    {% for x in nodes_locs %}
+    //   let lat = {{nodes_locs[0][1]}};
+    //   let long = {{nodes_locs[0][0]}};
+    //   let location = new google.maps.LatLng(lat, long);
+    //
+    //   let marker = new google.maps.Marker({
+    //     position: location,
+    //     map: map,
+    // });
+    {% endfor %}
+  }
+</script>
+<!--<script src="{{ url_for('static', filename='app.js') }}"></script>-->
 </body>
 
 {% for x in nodes_locs %}
 {{x}}<br>
-<script>addMarker({{x}}.latLng)</script>
 {% endfor %}
 {% endblock %}

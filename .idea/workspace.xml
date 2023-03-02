@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="aaa86815-836f-477c-a45a-69965a315eb9" name="Changes" comment="Updated Mapping Test">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/powergen_flask/static/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/static/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/powergen_flask/templates/input/results.html" beforeDir="false" afterPath="$PROJECT_DIR$/powergen_flask/templates/input/results.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -195,7 +194,8 @@
       <workItem from="1677529029797" duration="3134000" />
       <workItem from="1677533291165" duration="1089000" />
       <workItem from="1677574382553" duration="757000" />
-      <workItem from="1677615564221" duration="2601000" />
+      <workItem from="1677615564221" duration="3804000" />
+      <workItem from="1677762520500" duration="4239000" />
     </task>
     <task id="LOCAL-00001" summary="Completed CSV upload mechanism - still needs a way of reading to database">
       <created>1675185560592</created>
@@ -267,7 +267,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676926075563</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Updated Mapping Test">
+      <created>1677618210843</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1677618210843</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
