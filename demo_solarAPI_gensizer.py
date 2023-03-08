@@ -53,7 +53,7 @@ power_demand = [1000]*8760
 output_pv_unit = pv.pv_output(latitude, longitude, pv_capacity, year=2019,
                               auto_dataset=True, auto_tilt=True)
 
-# create generation sizer object with 50 particles
+    # create generation sizer object with 50 particles
 g = gs.GenSizer(50, power_demand, output_pv_unit, solCost, battCost, genCost,
                 fuelCost, EbattMax_unit, EbattMin_unit, Pgen_unit, fuelReq,
                 timebreakerMax, autonomDaysMin)

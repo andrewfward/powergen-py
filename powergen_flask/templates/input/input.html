@@ -16,50 +16,57 @@
 <!--</div>-->
 <form method="POST" enctype="multipart/form-data">
  <div class="row">
-  <div id="Clustering" class="column">
-    <h1>Customer Clustering Parameters</h1>
-    <label for="Network Voltage">Network Voltage</label>
-    <input name="Network Voltage" id="Network Voltage" required>
-    <label for="Pole Cost">Pole Cost</label>
-    <input name="Pole Cost" id="Pole Cost" required>
-    <label for="Pole Spacing">Pole Spacing</label>
-    <input name="Pole Spacing" id="Pole Spacing" required>
-    <label for="Resistance per km">Resistance per km</label>
-    <input name="Resistance per km" id="Resistance per km" required>
-    <label for="Current Rating">Current Rating</label>
-    <input name="Current Rating" id="Current Rating" required>
-    <label for="Cost per km">Cost per km</label>
-    <input name="Cost per km" id="Cost per km" required>
-    <label for="Max Voltage Drop">Max Voltage Drop</label>
-    <input name="Max Voltage Drop" id="Max Voltage Drop" required>
-    <label for="CSV File">CSV File</label>
-    <input name="CSV File" type="file" id="CSV File" required>
-  </div>
-  <div id="Gensizer" class="column">
-    <h1>Generation Sizer Parameters</h1>
-      <label for="Number of Particles">Number of Particles</label>
-      <input name="Number of Particles" id="Number of Particles" required>
-      <label for="PV Panel Capacity">PV Panel Capacity</label>
-      <input name="PV Panel Capacity" id="PV Panel Capacity" required>
-      <label for="PV Panel Cost">PV Panel Cost</label>
-      <input name="PV Panel Cost" id="PV Panel Cost" required>
-      <label for="Battery Cost">Battery Cost</label>
-      <input name="Battery Cost" id="Battery Cost" required>
-      <label for="Diesel Generator Cost">Diesel Generator Cost</label>
-      <input name="Diesel Generator Cost" id="Diesel Generator Cost" required>
-      <label for="Fuel Cost">Fuel Cost</label>
-      <input name="Fuel Cost" id="Fuel Cost" required>
-      <label for="Max Battery Energy">Max Battery Energy</label>
-      <input name="Max Battery Energy" id="Max Battery Energy" required>
-      <label for="Min Battery Energy">Min Battery Energy</label>
-      <input name="Min Battery Energy" id="Min Battery Energy" required>
-      <label for="Diesel Generator Rated Power">Diesel Generator Rated Power</label>
-      <input name="Diesel Generator Rated Power" id="Diesel Generator Rated Power" required>
-      <label for="Fuel Requirement">Fuel Requirement (litres per hour)</label>
-      <input name="Fuel Requirement" id="Fuel Requirement" required>
-      <label for="Required Days of Autonomy">Required Days of Autonomy</label>
-      <input name="Required Days of Autonomy" id="Required Days of Autonomy" required>
-  </div>
+   <div id="coords" class="column">
+     <h1>Electricity Source Coordinates</h1>
+     <label for="Lat">Source Latitude</label>
+     <input name="Lat" id="Lat">
+     <label for="Lng">Source Longitude</label>
+     <input name="Lng" id="Lng">
+   </div>
+   <div id="Clustering" class="column">
+     <h1>Customer Clustering Parameters</h1>
+     <label for="Network Voltage">Network Voltage</label>
+     <input name="Network Voltage" id="Network Voltage" required>
+     <label for="Pole Cost">Pole Cost</label>
+     <input name="Pole Cost" id="Pole Cost" required>
+     <label for="Pole Spacing">Pole Spacing</label>
+     <input name="Pole Spacing" id="Pole Spacing" required>
+     <label for="Resistance per km">Resistance per km</label>
+     <input name="Resistance per km" id="Resistance per km" required>
+     <label for="Current Rating">Current Rating</label>
+     <input name="Current Rating" id="Current Rating" required>
+     <label for="Cost per km">Cost per km</label>
+     <input name="Cost per km" id="Cost per km" required>
+     <label for="Max Voltage Drop">Max Voltage Drop</label>
+     <input name="Max Voltage Drop" id="Max Voltage Drop" required>
+     <label for="CSV File">CSV File</label>
+     <input name="CSV File" type="file" id="CSV File" required>
+   </div>
+   <div id="Gensizer" class="column">
+     <h1>Generation Sizer Parameters</h1>
+       <label for="Number of Particles">Number of Particles</label>
+       <input name="Number of Particles" id="Number of Particles" required>
+       <label for="PV Panel Capacity">PV Panel Capacity</label>
+       <input name="PV Panel Capacity" id="PV Panel Capacity" required>
+       <label for="PV Panel Cost">PV Panel Cost</label>
+       <input name="PV Panel Cost" id="PV Panel Cost" required>
+       <label for="Battery Cost">Battery Cost</label>
+       <input name="Battery Cost" id="Battery Cost" required>
+       <label for="Diesel Generator Cost">Diesel Generator Cost</label>
+       <input name="Diesel Generator Cost" id="Diesel Generator Cost" required>
+       <label for="Fuel Cost">Fuel Cost</label>
+       <input name="Fuel Cost" id="Fuel Cost" required>
+       <label for="Max Battery Energy">Max Battery Energy</label>
+       <input name="Max Battery Energy" id="Max Battery Energy" required>
+       <label for="Min Battery Energy">Min Battery Energy</label>
+       <input name="Min Battery Energy" id="Min Battery Energy" required>
+       <label for="Diesel Generator Rated Power">Diesel Generator Rated Power</label>
+       <input name="Diesel Generator Rated Power" id="Diesel Generator Rated Power" required>
+       <label for="Fuel Requirement">Fuel Requirement (litres per hour)</label>
+       <input name="Fuel Requirement" id="Fuel Requirement" required>
+       <label for="Required Days of Autonomy">Required Days of Autonomy</label>
+       <input name="Required Days of Autonomy" id="Required Days of Autonomy" required>
+   </div>
 </div>
 <div>
     <input type="submit" value="Register">

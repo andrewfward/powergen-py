@@ -44,6 +44,10 @@ timebreakerMax = 0
 # this function takes inputs based on the parameters of the CustomerClustering.py class
 def user_input():
     if request.method == 'POST':
+        #get the source location which will be passed to google maps API
+        origin_lng = float(request.form['Lng'])
+        origin_lat = float(request.form['Lat'])
+
         # Parameters for Customer Clustering
         network_voltage = float(request.form['Network Voltage'])
         pole_cost = float(request.form['Pole Cost'])
@@ -179,7 +183,7 @@ def user_input():
                 # this redirect takes the user to the next page, for which the redirect is defined below
                 # return redirect(url_for('user_input.results'))
                 # return jsonify(nodes_locs)#, nodes_locs_json
-                return render_template('input/results.html', nodes_locs=nodes_locs)
+                return render_template('input/results.html', nodes_locs=nodes_locs, origin_lat=origin_lat, origin_lng=origin_lng, nodes=nodes)
     return render_template('input/input.html')
 
 
